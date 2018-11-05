@@ -42,35 +42,68 @@ class CalendarViewController: UIViewController, UIGestureRecognizerDelegate {
         self.calendarView = calendarView
         calendarView.calendarView.calendarDelegate = self
         calendarView.calendarView.calendarDataSource = self
+        calendarView.calendarView.register(UINib(nibName: "CalendarCellView", bundle: nil), forCellWithReuseIdentifier: "CalendarCellView")
         calendarView.autoresizingMask = flexibleDimensions
         containerView.addSubview(calendarView)
-        
-        view.backgroundColor = UIColor.white
 
+        
         // sets drawable area dimensions
         let cgView = StrokeCGView(frame: CGRect(origin: .zero, size: CGSize(width: maxScreenDimension, height:maxScreenDimension)))
         cgView.autoresizingMask = flexibleDimensions
         self.cgView = cgView
         
+        view.backgroundColor = UIColor.white
+        
         let canvasContainerView = CanvasContainerView(canvasSize: cgView.frame.size)
         canvasContainerView.documentView = cgView
         self.canvasContainerView = canvasContainerView
-        
+      
         //containerView.addSubview(canvasContainerView)
         canvasContainerView.isUserInteractionEnabled = true
         containerView.backgroundColor = canvasContainerView.backgroundColor
+      //  scrollView.panGestureRecognizer.allowedTouchTypes = [UITouch.TouchType.direct.rawValue as NSNumber]
+     //   scrollView.pinchGestureRecognizer?.allowedTouchTypes = [UITouch.TouchType.direct.rawValue as NSNumber]
         
         let pencilStrokeRecognizer = StrokeGestureRecognizer(target: self, action: #selector(strokeUpdated(_:)))
         pencilStrokeRecognizer.delegate = self
         pencilStrokeRecognizer.cancelsTouchesInView = false
-        containerView.addGestureRecognizer(pencilStrokeRecognizer)
+      //  containerView.addGestureRecognizer(pencilStrokeRecognizer)
         pencilStrokeRecognizer.coordinateSpaceView = cgView
         pencilStrokeRecognizer.isForPencil = true
         self.pencilStrokeRecognizer = pencilStrokeRecognizer
         
         setupConfigurations()
+
+        clearButton = addButton(title: "clear", action: #selector(clearButtonAction(_:)) )
         
         setupPencilUI()
+    }
+    
+    // MARK: View setup helpers.
+    var buttons = [UIButton]()
+    func addButton(title: String, action: Selector) -> UIButton {
+        let bounds = view.bounds
+        let button = UIButton(type: .custom)
+        let maxX: CGFloat
+        if let lastButton = buttons.last {
+            maxX = lastButton.frame.minX
+        } else {
+            maxX = bounds.maxX
+        }
+        button.setTitleColor(UIColor.orange, for: [])
+        button.setTitleColor(UIColor.lightGray, for: .highlighted)
+        button.setTitle(title, for: [])
+        button.sizeToFit()
+        button.frame = button.frame.insetBy(dx: -20.0, dy: -4.0)
+        button.frame.origin = CGPoint(x: maxX - button.frame.width - 5.0, y: bounds.minY - 5.0)
+        button.autoresizingMask = [.flexibleLeftMargin, .flexibleBottomMargin]
+        button.addTarget(self, action: action, for: .touchUpInside)
+        let buttonLayer = button.layer
+        buttonLayer.cornerRadius = 5.0
+        button.backgroundColor = UIColor(white: 1.0, alpha: 0.4)
+        view.addSubview(button)
+        buttons.append(button)
+        return button
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -162,7 +195,7 @@ class CalendarViewController: UIViewController, UIGestureRecognizerDelegate {
         self.pencilMode = true
         
         notificationObservers.append(
-            NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: UIApplication.shared, queue: nil)
+        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: UIApplication.shared, queue: nil)
             { [unowned self](_) in
                 if self.pencilMode &&
                     (self.lastSeenPencilInteraction == nil ||
@@ -193,6 +226,13 @@ class CalendarViewController: UIViewController, UIGestureRecognizerDelegate {
     // instead of adding failure requirements to the gesture for minimizing the delay
     // to the first action sent and therefore the first lines drawn.
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        
+        for button in buttons {
+            if button.hitTest(touch.location(in:clearButton), with: nil) != nil {
+                return false
+            }
+        }
+        
         return true
     }
     
@@ -203,6 +243,8 @@ class CalendarViewController: UIViewController, UIGestureRecognizerDelegate {
         }
         return false
     }
+    
+    
 }
 
 extension CalendarViewController: JTAppleCalendarViewDelegate, JTAppleCalendarViewDataSource {
@@ -226,10 +268,6 @@ extension CalendarViewController: JTAppleCalendarViewDelegate, JTAppleCalendarVi
         let isToday: Bool = Calendar.current.compare(date, to: Date(), toGranularity: .day) == .orderedSame
         // Setup Cell text
         myCustomCell.dayLabel.text = cellState.text
-        
-        myCustomCell.layer.borderWidth = 1
-        myCustomCell.layer.borderColor = UIColor.init(red: 0.1, green: 0.1, blue: 0.1, alpha: 0.1).cgColor
-        myCustomCell.layer.cornerRadius = 0
         
         // Setup text color
         if cellState.dateBelongsTo == .thisMonth {

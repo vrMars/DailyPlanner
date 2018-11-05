@@ -12,17 +12,17 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view contentMode="scaleToFill" restorationIdentifier="CalendarCellView" id="iN0-l3-epB" customClass="CalendarCellView" customModule="DailyPlanner" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="181" height="114"/>
+            <rect key="frame" x="0.0" y="0.0" width="416" height="306"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="dateTextGoesHere" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4hC-IO-iUy">
-                    <rect key="frame" x="16" y="47" width="149" height="21"/>
+                    <rect key="frame" x="16" y="47" width="384" height="213"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
                 </label>
             </subviews>
-            <color key="backgroundColor" red="0.9756097561" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" relation="lessThanOrEqual" secondItem="4hC-IO-iUy" secondAttribute="trailing" constant="16" id="HBA-JL-yTW"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="4hC-IO-iUy" secondAttribute="bottom" constant="46" id="HZm-na-vHb"/>
@@ -34,7 +34,7 @@
             <connections>
                 <outlet property="dayLabel" destination="4hC-IO-iUy" id="Vic-i2-Xc2"/>
             </connections>
-            <point key="canvasLocation" x="-16.800000000000001" y="-95.352323838080963"/>
+            <point key="canvasLocation" x="171.19999999999999" y="-8.995502248875562"/>
         </view>
     </objects>
 </document>

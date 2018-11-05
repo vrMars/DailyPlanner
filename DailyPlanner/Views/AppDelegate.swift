@@ -9,13 +9,26 @@
 import UIKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UINavigationControllerDelegate {
 
     var window: UIWindow?
-
+    var testNavigationController : UINavigationController?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        let testViewController: UIViewController = CalendarViewController()
+        self.testNavigationController = UINavigationController()
+        if let testNavigationController = self.testNavigationController{
+            testNavigationController.delegate = self
+            testNavigationController.setNavigationBarHidden(true, animated: false)
+            testNavigationController.pushViewController(testViewController, animated: false)
+            self.window = UIWindow(frame: UIScreen.main.bounds)
+            if let window = self.window {
+                window.rootViewController = testNavigationController
+                window.makeKeyAndVisible()
+            }
+            
+        }
         return true
     }
 

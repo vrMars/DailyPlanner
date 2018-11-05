@@ -20,7 +20,7 @@ class CalendarViewController: UIViewController, UIGestureRecognizerDelegate {
     var configurations = [() -> ()]()
     
     var strokeCollection = StrokeCollection()
-    var containerView: UIView!
+    var containerView: UIScrollView!
     var canvasContainerView: CanvasContainerView!
     var calendarView: CalendarView!
     
@@ -34,9 +34,12 @@ class CalendarViewController: UIViewController, UIGestureRecognizerDelegate {
         let flexibleDimensions: UIView.AutoresizingMask = [.flexibleWidth, .flexibleHeight]
         
         
-        let containerView = UIView(frame: bounds)
+        let containerView = UIScrollView(frame: bounds)
         view.addSubview(containerView)
         self.containerView = containerView
+        containerView.delegate = self
+        containerView.maximumZoomScale = 3.0
+        containerView.minimumZoomScale = 1.0
         
         let calendarView = CalendarView(frame: bounds)
         self.calendarView = calendarView
@@ -56,7 +59,7 @@ class CalendarViewController: UIViewController, UIGestureRecognizerDelegate {
         canvasContainerView.documentView = cgView
         self.canvasContainerView = canvasContainerView
         
-        //containerView.addSubview(canvasContainerView)
+        containerView.addSubview(canvasContainerView)
         canvasContainerView.isUserInteractionEnabled = true
         containerView.backgroundColor = canvasContainerView.backgroundColor
         

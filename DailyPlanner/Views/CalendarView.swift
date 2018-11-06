@@ -30,13 +30,14 @@ class CalendarView: UIView {
         calendarView.register(UINib(nibName: "CalendarCellView", bundle: nil), forCellWithReuseIdentifier: "CalendarCellView")
 
         //configure calendar view
-        calendarView.backgroundColor = UIColor.white
+        calendarView.backgroundColor = UIColor.clear
         calendarView.minimumLineSpacing = 0
         calendarView.minimumInteritemSpacing = 0
+        calendarView.isUserInteractionEnabled = true
         calendarView.scrollDirection = .horizontal
         calendarView.scrollingMode = .stopAtEachCalendarFrame
         
-        self.backgroundColor = .green
+        self.backgroundColor = .clear
 
         self.addSubview(calendarView)
         self.addSubview(todaysDate)

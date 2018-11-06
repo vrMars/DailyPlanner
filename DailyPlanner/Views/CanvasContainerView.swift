@@ -41,7 +41,7 @@ class CanvasContainerView : UIView {
         let canvasOrigin = CGPoint(x: (frame.width - canvasSize.width) / 2.0, y: (frame.height - canvasSize.height) / 2.0)
         let canvasFrame = CGRect(origin: canvasOrigin, size: canvasSize)
         canvasView = UIView(frame:canvasFrame)
-        canvasView.backgroundColor = UIColor.clear
+        canvasView.backgroundColor = UIColor.white
         canvasView.layer.shadowOffset = CGSize(width: 0.0, height: 3.0)
         canvasView.layer.shadowRadius = 4.0
         canvasView.layer.shadowColor = UIColor.darkGray.cgColor

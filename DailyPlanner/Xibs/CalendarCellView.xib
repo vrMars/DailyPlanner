@@ -16,22 +16,30 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="dateTextGoesHere" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4hC-IO-iUy">
-                    <rect key="frame" x="16" y="47" width="384" height="213"/>
+                    <rect key="frame" x="16" y="16" width="384" height="20.5"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
                 </label>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oRo-nB-OZw" customClass="StrokeCGView" customModule="DailyPlanner" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="89" width="416" height="217"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                </view>
             </subviews>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" relation="lessThanOrEqual" secondItem="4hC-IO-iUy" secondAttribute="trailing" constant="16" id="HBA-JL-yTW"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="4hC-IO-iUy" secondAttribute="bottom" constant="46" id="HZm-na-vHb"/>
-                <constraint firstItem="4hC-IO-iUy" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="47" id="JHY-QT-nco"/>
-                <constraint firstItem="4hC-IO-iUy" firstAttribute="leading" relation="lessThanOrEqual" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="Kec-SL-WJT"/>
+                <constraint firstItem="oRo-nB-OZw" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="DpS-qV-1gU"/>
+                <constraint firstItem="oRo-nB-OZw" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="Ot2-DY-ybi"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="4hC-IO-iUy" secondAttribute="trailing" constant="16" id="SSF-b5-zKS"/>
+                <constraint firstItem="oRo-nB-OZw" firstAttribute="bottom" secondItem="vUN-kp-3ea" secondAttribute="bottom" id="Xx1-ZJ-Qs4"/>
+                <constraint firstItem="4hC-IO-iUy" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="fU9-9n-HCy"/>
+                <constraint firstItem="4hC-IO-iUy" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="16" id="pUL-XL-NBn"/>
+                <constraint firstItem="oRo-nB-OZw" firstAttribute="top" secondItem="4hC-IO-iUy" secondAttribute="bottom" constant="52.5" id="tZy-IX-F7k"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <connections>
+                <outlet property="cgView" destination="oRo-nB-OZw" id="np4-2s-HZ8"/>
                 <outlet property="dayLabel" destination="4hC-IO-iUy" id="Vic-i2-Xc2"/>
             </connections>
             <point key="canvasLocation" x="171.19999999999999" y="-8.995502248875562"/>

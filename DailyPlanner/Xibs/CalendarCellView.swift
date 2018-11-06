@@ -10,4 +10,5 @@ import JTAppleCalendar
 
 class CalendarCellView: JTAppleCell {
     @IBOutlet var dayLabel: UILabel!
+    @IBOutlet var cgView: StrokeCGView!
 }

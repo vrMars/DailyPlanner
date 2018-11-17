@@ -10,9 +10,28 @@ import Foundation
 import UIKit
 
 
-class StrokeCollection {
+class StrokeCollection: NSObject, Codable {
     var strokes: [Stroke] = []
-    var activeStroke: Stroke?
+    var activeStroke: Stroke? = nil
+    
+    private enum CodingKeys: String, CodingKey {
+        case strokes
+    }
+    
+    override init() {
+        self.strokes = []
+        self.activeStroke = nil
+    }
+    
+    required init(from decoder:Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        strokes = try values.decode([Stroke].self, forKey: .strokes)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(strokes, forKey: .strokes)
+    }
     
     func takeActiveStroke() {
         if let stroke = activeStroke {
@@ -29,66 +48,63 @@ enum StrokePhase {
     case cancelled
 }
 
-struct StrokeSample {
+struct StrokeSample: Codable {
     // Always.
-    let timestamp: TimeInterval
+//    let timestamp: TimeInterval
     let location: CGPoint
     
     // 3D Touch or Pencil.
-    var force: CGFloat?
+ //   var force: CGFloat?
     
     // Pencil only.
-    var estimatedProperties: UITouch.Properties = []
-    var estimatedPropertiesExpectingUpdates: UITouch.Properties = []
-    var altitude: CGFloat?
-    var azimuth: CGFloat?
+//    var estimatedProperties: UITouch.Properties = []
+//    var estimatedPropertiesExpectingUpdates: UITouch.Properties = []
+  //  var altitude: CGFloat?
+//    var azimuth: CGFloat?
     
-    var azimuthUnitVector: CGVector {
-        return CGVector(dx: 1.0, dy: 0.0).apply(transform: CGAffineTransform(rotationAngle: azimuth!))
-    }
+//    var azimuthUnitVector: CGVector {
+//        return CGVector(dx: 1.0, dy: 0.0).apply(transform: CGAffineTransform(rotationAngle: azimuth!))
+//    }
     
-    init(timestamp: TimeInterval, location: CGPoint,
-         coalesced: Bool, predicted: Bool = false,
-         force: CGFloat? = nil,
-         azimuth: CGFloat? = nil, altitude: CGFloat? = nil, estimatedProperties: UITouch.Properties = [], estimatedPropertiesExpectingUpdates: UITouch.Properties = []) {
-        self.timestamp = timestamp
+    init(location: CGPoint) {
+     //   self.timestamp = timestamp
         self.location = location
-        self.force = force
-        self.coalesced = coalesced
-        self.predicted = predicted
-        self.altitude = altitude
-        self.azimuth = azimuth
+    //    self.force = force
+   //     self.coalesced = coalesced
+    //    self.predicted = predicted
+      //  self.altitude = altitude
+    //    self.azimuth = azimuth
     }
 
     /// Convenience accessor returns a non-optional (Default: 1.0)
-    var forceWithDefault: CGFloat {
-        return force ?? 1.0
-    }
+//    var forceWithDefault: CGFloat {
+//        return force ?? 1.0
+//    }
 
     /// Returns the force perpendicular to the screen. The regular stylus force is along the pencil axis.
-    var perpendicularForce: CGFloat {
-        let force = forceWithDefault
-        if let altitude = altitude {
-            let result = force / CGFloat(sin(Double(altitude)))
-            return result
-        } else {
-            return force
-        }
-    }
+//    var perpendicularForce: CGFloat {
+//        let force = forceWithDefault
+//        if let altitude = altitude {
+//            let result = force / CGFloat(sin(Double(altitude)))
+//            return result
+//        } else {
+//            return force
+//        }
+//    }
     
     // Values for debug display.
-    let coalesced: Bool
-    let predicted: Bool
+ //   let coalesced: Bool
+ //   let predicted: Bool
 }
 
-enum StrokeState {
+enum StrokeState: Int, Codable {
     case active
     case done
     case cancelled
 }
 
-class Stroke {
-    static let calligraphyFallbackAzimuthUnitVector = CGVector(dx: 1.0, dy:1.0).normalize!
+class Stroke: NSObject, Codable {
+    //static let calligraphyFallbackAzimuthUnitVector = CGVector(dx: 1.0, dy:1.0).normalize!
     
     var samples: [StrokeSample] = []
     var predictedSamples: [StrokeSample] = []
@@ -100,6 +116,31 @@ class Stroke {
     var hasUpdatesAtEndFrom: Int?
     
     var receivedAllNeededUpdatesBlock: (() -> ())?
+    
+    private enum CodingKeys: String, CodingKey {
+        case samples
+    }
+    
+    override init() {
+        self.samples = []
+        self.predictedSamples = []
+        self.previousPredictedSamples = nil
+        self.state = .active
+        self.sampleIndicesExpectingUpdates = Set<Int>()
+        self.expectsAltitudeAzimuthBackfill = false
+        self.hasUpdatesFromStartTo = nil
+        self.hasUpdatesAtEndFrom = nil
+    }
+    
+    required init(from decoder:Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        samples = try values.decode([StrokeSample].self, forKey: .samples)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(samples, forKey: .samples)
+    }
 
     func add(sample: StrokeSample) -> Int {
         let resultIndex = samples.count
@@ -110,9 +151,9 @@ class Stroke {
         if previousPredictedSamples == nil {
             previousPredictedSamples = predictedSamples
         }
-        if sample.estimatedPropertiesExpectingUpdates != [] {
-            sampleIndicesExpectingUpdates.insert(resultIndex)
-        }
+//        if sample.estimatedPropertiesExpectingUpdates != [] {
+//            sampleIndicesExpectingUpdates.insert(resultIndex)
+//        }
         predictedSamples.removeAll()
         return resultIndex
     }

@@ -10,6 +10,8 @@ import UIKit
 
 protocol CanvasViewDelegate {
     var strokes: StrokeCollection? { get set }
+    
+    func updateStrokeCollection(cell: CalendarCellView, strokeCollection: StrokeCollection)
 }
 
 class CanvasViewController: UIViewController, UIGestureRecognizerDelegate {
@@ -28,7 +30,23 @@ class CanvasViewController: UIViewController, UIGestureRecognizerDelegate {
     
     var configurations = [() -> ()]()
     
-    var strokeCollection = StrokeCollection()
+    var strokeSamples: [StrokeSample]? {
+        didSet (newValue) {
+            guard let strokeCollection = self.strokeCollection, let activeStroke = strokeCollection.activeStroke else {
+                return
+            }
+            activeStroke.samples = newValue!
+        }
+    }
+    
+    var strokeCollection: StrokeCollection? {
+        didSet (newValue) {
+            guard let cgView = self.cgView else {
+                return
+            }
+            cgView.strokeCollection = newValue
+        }
+    }
     var scrollView: UIScrollView!
     var canvasContainerView: CanvasContainerView!
     
@@ -49,6 +67,7 @@ class CanvasViewController: UIViewController, UIGestureRecognizerDelegate {
         let cgView = StrokeCGView(frame: CGRect(origin: .zero, size: CGSize(width: maxScreenDimension, height:maxScreenDimension)))
         cgView.autoresizingMask = flexibleDimensions
         self.cgView = cgView
+        self.cgView.strokeCollection = strokeCollection
         
         
         view.backgroundColor = UIColor.white
@@ -101,18 +120,18 @@ class CanvasViewController: UIViewController, UIGestureRecognizerDelegate {
     func addButton(title: String, action: Selector) -> UIButton {
         let bounds = view.bounds
         let button = UIButton(type: .custom)
-        let maxX: CGFloat
+        let minY: CGFloat
         if let lastButton = buttons.last {
-            maxX = lastButton.frame.minX
+            minY = lastButton.frame.maxY
         } else {
-            maxX = bounds.maxX
+            minY = bounds.minY + 10.0
         }
         button.setTitleColor(UIColor.orange, for: [])
         button.setTitleColor(UIColor.lightGray, for: .highlighted)
         button.setTitle(title, for: [])
         button.sizeToFit()
         button.frame = button.frame.insetBy(dx: -20.0, dy: -4.0)
-        button.frame.origin = CGPoint(x: maxX - button.frame.width - 5.0, y: bounds.minY - 5.0)
+        button.frame.origin = CGPoint(x: bounds.maxX - button.frame.width - 5.0, y: minY + 10.0)
         button.autoresizingMask = [.flexibleLeftMargin, .flexibleBottomMargin]
         button.addTarget(self, action: action, for: .touchUpInside)
         let buttonLayer = button.layer
@@ -159,6 +178,9 @@ class CanvasViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @objc func doneButtonAction(_ sender: AnyObject) {
         self.delegate?.strokes = self.strokeCollection
+        if let strokeCollection = strokeCollection {
+            self.delegate?.updateStrokeCollection(cell: cell!, strokeCollection: strokeCollection)
+        }
         self.navigationController?.popViewController(animated: true)
     }
     
@@ -168,15 +190,19 @@ class CanvasViewController: UIViewController, UIGestureRecognizerDelegate {
             lastSeenPencilInteraction = Date.timeIntervalSinceReferenceDate
         }
         
+        if self.strokeCollection == nil {
+            self.strokeCollection = StrokeCollection()
+        }
+        
         var stroke: Stroke?
         if strokeGesture.state != .cancelled {
             stroke = strokeGesture.stroke
             if strokeGesture.state == .began ||
-                (strokeGesture.state == .ended && strokeCollection.activeStroke == nil) {
-                strokeCollection.activeStroke = stroke
+                (strokeGesture.state == .ended && strokeCollection!.activeStroke == nil) {
+                strokeCollection!.activeStroke = stroke
             }
         } else {
-            strokeCollection.activeStroke = nil
+            strokeCollection!.activeStroke = nil
         }
         
         if let stroke = stroke {
@@ -187,10 +213,19 @@ class CanvasViewController: UIViewController, UIGestureRecognizerDelegate {
                         self?.receivedAllUpdatesForStroke(stroke)
                     }
                 }
-                strokeCollection.takeActiveStroke()
+                strokeCollection!.takeActiveStroke()
             }
         }
-        
+        // ** ENCODING **
+        let encoder = PropertyListEncoder()
+        encoder.outputFormat = .xml
+        do {
+            let data = try encoder.encode(self.strokeCollection)
+            UserDefaults.standard.set(data, forKey: cell!.date.description(with: .current))
+        }
+        catch {
+            print(error)
+        }
         cgView.strokeCollection = strokeCollection
     }
     

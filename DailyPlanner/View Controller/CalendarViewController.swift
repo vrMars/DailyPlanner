@@ -55,6 +55,12 @@ class CalendarViewController: UIViewController, UIGestureRecognizerDelegate, Can
     override var prefersStatusBarHidden: Bool {
         return true
     }
+    
+    func updateStrokeCollection(cell: CalendarCellView, strokeCollection: StrokeCollection) {
+        cell.cgView = StrokeCGView(frame: CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: 50, height: 50)))
+        cell.cgView?.strokeCollection = strokeCollection
+        calendarView.calendarView.reloadData()
+    }
 }
 
 extension CalendarViewController: JTAppleCalendarViewDelegate, JTAppleCalendarViewDataSource {
@@ -73,6 +79,11 @@ extension CalendarViewController: JTAppleCalendarViewDelegate, JTAppleCalendarVi
         let canvasVC = CanvasViewController()
         canvasVC.delegate = self
         canvasVC.cell = cell as? CalendarCellView
+        // ** DECODER **
+        if let data = UserDefaults.standard.object(forKey: date.description(with: .current)) as? Data {
+            let decoder = PropertyListDecoder()
+            canvasVC.strokeCollection = try? decoder.decode(StrokeCollection.self, from: data)
+        }
         self.navigationController?.pushViewController(canvasVC, animated: true)
     }
     
@@ -81,7 +92,7 @@ extension CalendarViewController: JTAppleCalendarViewDelegate, JTAppleCalendarVi
         let isToday: Bool = Calendar.current.compare(date, to: Date(), toGranularity: .day) == .orderedSame
         // Setup Cell text
         myCustomCell.dayLabel.text = cellState.text
-        
+        myCustomCell.date = date
         myCustomCell.layer.borderWidth = 1
         myCustomCell.layer.borderColor = UIColor.init(red: 0.1, green: 0.1, blue: 0.1, alpha: 0.1).cgColor
         myCustomCell.layer.cornerRadius = 0

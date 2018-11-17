@@ -180,20 +180,20 @@ class StrokeCGView: UIView {
         
         lineSettings()
         
-//        var forceAccessBlock = {(sample: StrokeSample) -> CGFloat in
-//            sample.forceWithDefault
-//        }
+        var forceAccessBlock = {(sample: StrokeSample) -> CGFloat in
+            sample.forceWithDefault
+        }
 
-//        if displayOptions == .ink {
-//            forceAccessBlock = {(sample: StrokeSample) -> CGFloat in
-//                return sample.perpendicularForce
-//            }
-//        }
-//
-//        let previousGetter = forceAccessBlock
-//        forceAccessBlock = {(sample: StrokeSample) -> CGFloat in
-//            return previousGetter(sample) * forceMultiplier + forceOffset
-//        }
+        if displayOptions == .ink {
+            forceAccessBlock = {(sample: StrokeSample) -> CGFloat in
+                return sample.perpendicularForce
+            }
+        }
+
+        let previousGetter = forceAccessBlock
+        forceAccessBlock = {(sample: StrokeSample) -> CGFloat in
+            return previousGetter(sample) * forceMultiplier + forceOffset
+        }
         
         var heldFromSample: StrokeSample?
         var heldFromSampleUnitVector: CGVector?
@@ -217,16 +217,16 @@ class StrokeCGView: UIView {
                 let fromUnitVector = (heldFromSampleUnitVector != nil ? heldFromSampleUnitVector! : segment.fromSampleUnitNormal)
                 let toUnitVector = segment.toSampleUnitNormal
                 
-//                let isForceEstimated = fromSample.estimatedProperties.contains(.force) || toSample.estimatedProperties.contains(.force)
-//                if isForceEstimated {
-//                    if lastEstimatedSample == nil {
-//                        lastEstimatedSample = (segment.fromSampleIndex+1,toSample)
-//                    }
-//                    forceEstimatedLineSettings()
-//                } else {
+                let isForceEstimated = fromSample.estimatedProperties.contains(.force) || toSample.estimatedProperties.contains(.force)
+                if isForceEstimated {
+                    if lastEstimatedSample == nil {
+                        lastEstimatedSample = (segment.fromSampleIndex+1,toSample)
+                    }
+                    forceEstimatedLineSettings()
+                } else {
                     lineSettings()
-              //  }
-                
+                }
+            
                 context.beginPath()
                 context.move(to: fromSample.location + fromUnitVector)
                 context.addLine(to: toSample.location + toUnitVector)
@@ -245,8 +245,8 @@ class StrokeCGView: UIView {
         if stroke.samples.count == 1 {
             // Construct a face segment to draw for a stroke that is only one point.
             let sample = stroke.samples.first!
-            let tempSampleFrom = StrokeSample(location: sample.location + CGVector(dx: -0.5, dy: 0.0))
-            let tempSampleTo = StrokeSample(location: sample.location + CGVector(dx: 0.5, dy: 0.0))
+            let tempSampleFrom = StrokeSample(timestamp: sample.timestamp, location: sample.location + CGVector(dx: -0.5, dy: 0.0), coalesced: false, predicted: false, force: sample.force, azimuth: sample.azimuth, altitude: sample.altitude, estimatedProperties: sample.estimatedProperties, estimatedPropertiesExpectingUpdates: [])
+            let tempSampleTo = StrokeSample(timestamp: sample.timestamp, location: sample.location + CGVector(dx: 0.5, dy: 0.0), coalesced: false, predicted: false, force: sample.force, azimuth: sample.azimuth, altitude: sample.altitude, estimatedProperties: sample.estimatedProperties, estimatedPropertiesExpectingUpdates: [])
             let segment = StrokeSegment(sample: tempSampleFrom)
             segment.advanceWithSample(incomingSample: tempSampleTo)
             segment.advanceWithSample(incomingSample: nil)

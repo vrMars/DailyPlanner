@@ -48,53 +48,73 @@ enum StrokePhase {
     case cancelled
 }
 
-struct StrokeSample: Codable {
+class StrokeSample: NSObject, Codable {
     // Always.
-//    let timestamp: TimeInterval
+    let timestamp: TimeInterval
     let location: CGPoint
     
     // 3D Touch or Pencil.
- //   var force: CGFloat?
+    var force: CGFloat?
     
     // Pencil only.
-//    var estimatedProperties: UITouch.Properties = []
-//    var estimatedPropertiesExpectingUpdates: UITouch.Properties = []
-  //  var altitude: CGFloat?
-//    var azimuth: CGFloat?
+    var estimatedProperties: UITouch.Properties = []
+    var estimatedPropertiesExpectingUpdates: UITouch.Properties = []
+    var altitude: CGFloat?
+    var azimuth: CGFloat?
+    var azimuthUnitVector: CGVector {
+        return CGVector(dx: 1.0, dy: 0.0).apply(transform: CGAffineTransform(rotationAngle: azimuth!))
+    }
     
-//    var azimuthUnitVector: CGVector {
-//        return CGVector(dx: 1.0, dy: 0.0).apply(transform: CGAffineTransform(rotationAngle: azimuth!))
-//    }
-    
-    init(location: CGPoint) {
-     //   self.timestamp = timestamp
+    init(timestamp: TimeInterval, location: CGPoint,
+         coalesced: Bool, predicted: Bool = false,
+         force: CGFloat? = nil,
+         azimuth: CGFloat? = nil, altitude: CGFloat? = nil, estimatedProperties: UITouch.Properties = [], estimatedPropertiesExpectingUpdates: UITouch.Properties = []) {
+        self.timestamp = timestamp
         self.location = location
-    //    self.force = force
-   //     self.coalesced = coalesced
-    //    self.predicted = predicted
-      //  self.altitude = altitude
-    //    self.azimuth = azimuth
+        self.force = force
+        self.coalesced = coalesced
+        self.predicted = predicted
+        self.altitude = altitude
+        self.azimuth = azimuth
+    }
+    
+    // Codable interface functions
+    private enum CodingKeys: String, CodingKey {
+        case location
+        case timeInterval
+    }
+    
+    required init(from decoder:Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        location = try values.decode(CGPoint.self, forKey: .location)
+        timestamp = try values.decode(TimeInterval.self, forKey: .timeInterval)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(location, forKey: .location)
+        try container.encode(timestamp, forKey: .timeInterval)
     }
 
     /// Convenience accessor returns a non-optional (Default: 1.0)
-//    var forceWithDefault: CGFloat {
-//        return force ?? 1.0
-//    }
+    var forceWithDefault: CGFloat {
+        return force ?? 1.0
+    }
 
     /// Returns the force perpendicular to the screen. The regular stylus force is along the pencil axis.
-//    var perpendicularForce: CGFloat {
-//        let force = forceWithDefault
-//        if let altitude = altitude {
-//            let result = force / CGFloat(sin(Double(altitude)))
-//            return result
-//        } else {
-//            return force
-//        }
-//    }
+    var perpendicularForce: CGFloat {
+        let force = forceWithDefault
+        if let altitude = altitude {
+            let result = force / CGFloat(sin(Double(altitude)))
+            return result
+        } else {
+            return force
+        }
+    }
     
     // Values for debug display.
- //   let coalesced: Bool
- //   let predicted: Bool
+    var coalesced: Bool = false
+    var predicted: Bool = false
 }
 
 enum StrokeState: Int, Codable {
@@ -104,7 +124,7 @@ enum StrokeState: Int, Codable {
 }
 
 class Stroke: NSObject, Codable {
-    //static let calligraphyFallbackAzimuthUnitVector = CGVector(dx: 1.0, dy:1.0).normalize!
+    static let calligraphyFallbackAzimuthUnitVector = CGVector(dx: 1.0, dy:1.0).normalize!
     
     var samples: [StrokeSample] = []
     var predictedSamples: [StrokeSample] = []
@@ -151,9 +171,9 @@ class Stroke: NSObject, Codable {
         if previousPredictedSamples == nil {
             previousPredictedSamples = predictedSamples
         }
-//        if sample.estimatedPropertiesExpectingUpdates != [] {
-//            sampleIndicesExpectingUpdates.insert(resultIndex)
-//        }
+        if sample.estimatedPropertiesExpectingUpdates != [] {
+            sampleIndicesExpectingUpdates.insert(resultIndex)
+        }
         predictedSamples.removeAll()
         return resultIndex
     }

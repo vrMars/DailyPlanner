@@ -75,28 +75,28 @@ class StrokeGestureRecognizer: UIGestureRecognizer {
                         }
                     }
                     
-                    var sample = StrokeSample(location: location)
+                    let sample = StrokeSample(timestamp: touch.timestamp, location: location, coalesced: coalesced, predicted: predicted, force: self.collectForce ? touch.force : nil)
                     if touch.type == .stylus {
                         let estimatedProperties = touch.estimatedProperties
-//                        sample.estimatedProperties = estimatedProperties
-//                        sample.estimatedPropertiesExpectingUpdates = touch.estimatedPropertiesExpectingUpdates
-//                        sample.altitude = touch.altitudeAngle
-//                        sample.azimuth = touch.azimuthAngle(in: view)
+                        sample.estimatedProperties = estimatedProperties
+                        sample.estimatedPropertiesExpectingUpdates = touch.estimatedPropertiesExpectingUpdates
+                        sample.altitude = touch.altitudeAngle
+                        sample.azimuth = touch.azimuthAngle(in: view)
                         if stroke.samples.count == 0 &&
                             estimatedProperties.contains(.azimuth) {
                             stroke.expectsAltitudeAzimuthBackfill = true
                         } else if stroke.expectsAltitudeAzimuthBackfill &&
                             !estimatedProperties.contains(.azimuth) {
                             for (index, priorSample) in stroke.samples.enumerated() {
-                                var updatedSample = priorSample
-//                                if updatedSample.estimatedProperties.contains(.altitude) {
-//                                    updatedSample.estimatedProperties.remove(.altitude)
-//                                    updatedSample.altitude = sample.altitude
-//                                }
-//                                if updatedSample.estimatedProperties.contains(.azimuth) {
-//                                    updatedSample.estimatedProperties.remove(.azimuth)
-//                                    updatedSample.azimuth = sample.azimuth
-//                                }
+                                let updatedSample = priorSample
+                                if updatedSample.estimatedProperties.contains(.altitude) {
+                                    updatedSample.estimatedProperties.remove(.altitude)
+                                    updatedSample.altitude = sample.altitude
+                                }
+                                if updatedSample.estimatedProperties.contains(.azimuth) {
+                                    updatedSample.estimatedProperties.remove(.azimuth)
+                                    updatedSample.azimuth = sample.azimuth
+                                }
                                 stroke.update(sample: updatedSample, at: index)
                             }
                             stroke.expectsAltitudeAzimuthBackfill = false
@@ -188,17 +188,17 @@ class StrokeGestureRecognizer: UIGestureRecognizer {
     override func touchesEstimatedPropertiesUpdated(_ touches: Set<UITouch>) {
         for touch in touches {
             if let (stroke, sampleIndex) = outstandingUpdateIndexes[Int(truncating: touch.estimationUpdateIndex!)] {
-                var sample = stroke.samples[sampleIndex]
-           //     let expectedUpdates = sample.estimatedPropertiesExpectingUpdates
+                let sample = stroke.samples[sampleIndex]
+                let expectedUpdates = sample.estimatedPropertiesExpectingUpdates
                 // Only force is reported this way as of iOS 10.0
-//                if expectedUpdates.contains(.force) {
-//                    sample.force = touch.force
-//                    if !touch.estimatedProperties.contains(.force) {
-//                        // Only remove the estimate flag if the new value isn't estimated as well.
-//                        sample.estimatedProperties.remove(.force)
-//                    }
-//                }
-//                sample.estimatedPropertiesExpectingUpdates = touch.estimatedPropertiesExpectingUpdates
+                if expectedUpdates.contains(.force) {
+                    sample.force = touch.force
+                    if !touch.estimatedProperties.contains(.force) {
+                        // Only remove the estimate flag if the new value isn't estimated as well.
+                        sample.estimatedProperties.remove(.force)
+                    }
+                }
+                sample.estimatedPropertiesExpectingUpdates = touch.estimatedPropertiesExpectingUpdates
                 if touch.estimatedPropertiesExpectingUpdates == [] {
                     outstandingUpdateIndexes.removeValue(forKey: sampleIndex)
                 }

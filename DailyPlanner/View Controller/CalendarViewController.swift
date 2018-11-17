@@ -42,20 +42,23 @@ class CalendarViewController: UIViewController, UIGestureRecognizerDelegate, Can
         super.viewDidAppear(animated)
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        guard let strokes = self.strokes else {
-            return
-        }
-    }
-    
     override var prefersStatusBarHidden: Bool {
         return true
     }
     
     func updateStrokeCollection(cell: CalendarCellView, strokeCollection: StrokeCollection) {
         cell.cgView = StrokeCGView(frame: CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: 50, height: 50)))
+        
+        // ** ENCODING **
+        let encoder = PropertyListEncoder()
+        encoder.outputFormat = .xml
+        do {
+            let data = try encoder.encode(strokeCollection)
+            UserDefaults.standard.set(data, forKey: cell.date.description(with: .current))
+        }
+        catch {
+            print(error)
+        }
         cell.cgView?.strokeCollection = strokeCollection
         calendarView.calendarView.reloadData()
     }

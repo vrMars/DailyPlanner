@@ -216,16 +216,6 @@ class CanvasViewController: UIViewController, UIGestureRecognizerDelegate {
                 strokeCollection!.takeActiveStroke()
             }
         }
-        // ** ENCODING **
-        let encoder = PropertyListEncoder()
-        encoder.outputFormat = .xml
-        do {
-            let data = try encoder.encode(self.strokeCollection)
-            UserDefaults.standard.set(data, forKey: cell!.date.description(with: .current))
-        }
-        catch {
-            print(error)
-        }
         cgView.strokeCollection = strokeCollection
     }
     
@@ -277,6 +267,16 @@ class CanvasViewController: UIViewController, UIGestureRecognizerDelegate {
     var notificationObservers = [NSObjectProtocol]()
     
     deinit {
+        // ** ENCODING **
+        let encoder = PropertyListEncoder()
+        encoder.outputFormat = .xml
+        do {
+            let data = try encoder.encode(strokeCollection)
+            UserDefaults.standard.set(data, forKey: cell!.date.description(with: .current))
+        }
+        catch {
+            print(error)
+        }
         let defaultCenter = NotificationCenter.default
         for closure in notificationObservers {
             defaultCenter.removeObserver(closure)

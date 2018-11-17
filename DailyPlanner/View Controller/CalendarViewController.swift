@@ -48,8 +48,6 @@ class CalendarViewController: UIViewController, UIGestureRecognizerDelegate, Can
         guard let strokes = self.strokes else {
             return
         }
-        
-        print(strokes.strokes)
     }
     
     override var prefersStatusBarHidden: Bool {

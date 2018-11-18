@@ -11,4 +11,5 @@
 * Various pen styles + colours / eraser
 * Handwriting-to-text
 * Ability to search handwriting
-* Integration with Apple services (calendar, reminders, sharing, etc.) 
+* Integration with Apple services (calendar, reminders, sharing, etc.)
+* Release v1 

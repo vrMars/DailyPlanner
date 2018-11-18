@@ -12,4 +12,7 @@
 * Handwriting-to-text
 * Ability to search handwriting
 * Integration with Apple services (calendar, reminders, sharing, etc.)
-* Release v1 
+* Release v1
+
+## Known issues:
+* Drawing becomes sluggish when many strokes on a page 

@@ -58,12 +58,28 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "DailyPlanner/View Controller/CalendarViewController.swift"
-            timestampString = "564289521.822546"
+            timestampString = "564290600.786522"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "99"
-            endingLineNumber = "99"
-            landmarkName = "configureCalendarCell(myCustomCell:date:cellState:)"
+            startingLineNumber = "55"
+            endingLineNumber = "55"
+            landmarkName = "updateStrokeCollection(cell:strokeCollection:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "DailyPlanner/View Controller/CalendarViewController.swift"
+            timestampString = "564290600.7869591"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "49"
+            endingLineNumber = "49"
+            landmarkName = "updateStrokeCollection(cell:strokeCollection:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

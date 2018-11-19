@@ -46,6 +46,11 @@ class CalendarViewController: UIViewController, CanvasViewDelegate {
     }
     
     func updateStrokeCollection(cell: CalendarCellView, strokeCollection: StrokeCollection) {
+        if strokeCollection.strokes.isEmpty {
+            UserDefaults.standard.removeObject(forKey: cell.date.description(with: .current))
+            calendarView.calendarView.reloadData()
+            return
+        }
         // ** ENCODING **
         let encoder = PropertyListEncoder()
         encoder.outputFormat = .xml

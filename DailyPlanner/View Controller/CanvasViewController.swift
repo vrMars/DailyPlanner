@@ -172,8 +172,12 @@ class CanvasViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc func clearButtonAction(_ sender: AnyObject) {
+        guard var strokeCollection = self.strokeCollection else {
+            return
+        }
         self.strokeCollection = StrokeCollection()
         cgView.strokeCollection = self.strokeCollection
+        UserDefaults.standard.removeObject(forKey: cell!.date.description(with: .current))
     }
     
     @objc func doneButtonAction(_ sender: AnyObject) {

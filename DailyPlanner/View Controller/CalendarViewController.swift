@@ -95,6 +95,17 @@ extension CalendarViewController: JTAppleCalendarViewDelegate, JTAppleCalendarVi
         // Setup Cell text
         myCustomCell.dayLabel.text = cellState.text
         myCustomCell.date = date
+        /*
+         - TODO:
+            - Replace backgroundColor with a "smart snapshot" of content
+ 
+        */
+        if let data = UserDefaults.standard.object(forKey: date.description(with: .current)) as? Data {
+           myCustomCell.backgroundColor = .green
+        }
+        else {
+            myCustomCell.backgroundColor = .white
+        }
         myCustomCell.layer.borderWidth = 1
         myCustomCell.layer.borderColor = UIColor.init(red: 0.1, green: 0.1, blue: 0.1, alpha: 0.1).cgColor
         myCustomCell.layer.cornerRadius = 0

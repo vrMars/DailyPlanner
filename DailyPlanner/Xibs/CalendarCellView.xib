@@ -15,8 +15,11 @@
             <rect key="frame" x="0.0" y="0.0" width="416" height="306"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="dot" translatesAutoresizingMaskIntoConstraints="NO" id="bEk-pw-vOw">
+                    <rect key="frame" x="346" y="5" width="50" height="32"/>
+                </imageView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="dateTextGoesHere" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4hC-IO-iUy">
-                    <rect key="frame" x="20" y="20" width="376" height="20.5"/>
+                    <rect key="frame" x="20" y="20" width="318" height="21"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
@@ -24,7 +27,10 @@
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="4hC-IO-iUy" secondAttribute="trailing" constant="20" id="SSF-b5-zKS"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="bEk-pw-vOw" secondAttribute="trailing" constant="20" id="0r6-gI-Vog"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="4hC-IO-iUy" secondAttribute="trailing" constant="78" id="SSF-b5-zKS"/>
+                <constraint firstItem="bEk-pw-vOw" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="346" id="WD8-2I-eZw"/>
+                <constraint firstItem="bEk-pw-vOw" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="5" id="XZd-Co-re5"/>
                 <constraint firstItem="4hC-IO-iUy" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="20" id="fU9-9n-HCy"/>
                 <constraint firstItem="4hC-IO-iUy" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="20" id="pUL-XL-NBn"/>
             </constraints>
@@ -32,8 +38,12 @@
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <connections>
                 <outlet property="dayLabel" destination="4hC-IO-iUy" id="Vic-i2-Xc2"/>
+                <outlet property="journalDot" destination="bEk-pw-vOw" id="mEM-NS-gmj"/>
             </connections>
             <point key="canvasLocation" x="171.19999999999999" y="-8.995502248875562"/>
         </view>
     </objects>
+    <resources>
+        <image name="dot" width="32" height="32"/>
+    </resources>
 </document>

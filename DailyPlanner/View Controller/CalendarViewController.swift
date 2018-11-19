@@ -8,33 +8,26 @@
 
 import UIKit
 import JTAppleCalendar
+import SnapKit
 
-class CalendarViewController: UIViewController, UIGestureRecognizerDelegate, CanvasViewDelegate {
+class CalendarViewController: UIViewController, CanvasViewDelegate {
 
     // will contain all info about drawn strokes -> recreate for selected date
     var strokes: StrokeCollection?
-    var containerView: UIScrollView!
     var calendarView: CalendarView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let bounds = view.bounds
-        let flexibleDimensions: UIView.AutoresizingMask = [.flexibleWidth, .flexibleHeight]
-        let containerView = UIScrollView(frame: bounds)
-        view.addSubview(containerView)
-        self.containerView = containerView
-        containerView.delegate = self
-        containerView.maximumZoomScale = 3.0
-        containerView.minimumZoomScale = 1.0
         
-        let calendarView = CalendarView(frame: bounds)
+        let calendarView = CalendarView(frame: view.bounds)
         self.calendarView = calendarView
         calendarView.calendarView.calendarDelegate = self
         calendarView.calendarView.calendarDataSource = self
-        calendarView.autoresizingMask = flexibleDimensions
-        containerView.addSubview(calendarView)
         
         view.backgroundColor = UIColor.white
+        view.addSubview(calendarView)
+        
+        configure()
      
     }
     
@@ -46,9 +39,13 @@ class CalendarViewController: UIViewController, UIGestureRecognizerDelegate, Can
         return true
     }
     
+    func configure() {
+        calendarView.snp.makeConstraints { make in
+           make.edges.equalToSuperview()
+        }
+    }
+    
     func updateStrokeCollection(cell: CalendarCellView, strokeCollection: StrokeCollection) {
-        cell.cgView = StrokeCGView(frame: CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: 50, height: 50)))
-        
         // ** ENCODING **
         let encoder = PropertyListEncoder()
         encoder.outputFormat = .xml
@@ -59,7 +56,6 @@ class CalendarViewController: UIViewController, UIGestureRecognizerDelegate, Can
         catch {
             print(error)
         }
-        cell.cgView?.strokeCollection = strokeCollection
         calendarView.calendarView.reloadData()
     }
 }
@@ -76,6 +72,11 @@ extension CalendarViewController: JTAppleCalendarViewDelegate, JTAppleCalendarVi
         return myCustomCell
     }
     
+    func calendar(_ calendar: JTAppleCalendarView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
+        let components = Calendar.current.dateComponents([.month, .day, .year], from: visibleDates.monthDates[0].date)
+        calendarView.visibleMonth.text = "\(Months.init(rawValue: components.month! - 1)!)"
+    }
+
     func calendar(_ calendar: JTAppleCalendarView, didSelectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
         let canvasVC = CanvasViewController()
         canvasVC.delegate = self
@@ -125,13 +126,6 @@ extension CalendarViewController: JTAppleCalendarViewDelegate, JTAppleCalendarVi
             generateOutDates: .tillEndOfRow,
             firstDayOfWeek: .sunday)
         return parameters
-    }
-}
-
-extension CalendarViewController: UIScrollViewDelegate {
-    
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return self.calendarView
     }
 }
 

@@ -6,6 +6,9 @@
 //  Copyright © 2018 Neelaksh Bhatia. All rights reserved.
 //
 
+//DEPRECATED ***
+
+
 import JTAppleCalendar
 
 class CalendarCellView: JTAppleCell {

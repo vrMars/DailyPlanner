@@ -11,15 +11,15 @@ import UIKit
 protocol CanvasViewDelegate {
     var strokes: StrokeCollection? { get set }
     
-    func updateStrokeCollection(cell: CalendarCellView, strokeCollection: StrokeCollection)
+    func updateStrokeCollection(selectedDate: Date, strokeCollection: StrokeCollection)
 }
 
 class CanvasViewController: UIViewController, UIGestureRecognizerDelegate {
     
     var cgView: StrokeCGView!
-    
+
     var delegate: CanvasViewDelegate?
-    var cell: CalendarCellView?
+    var selectedDate: Date?
     
     var fingerStrokeRecognizer: StrokeGestureRecognizer!
     var pencilStrokeRecognizer: StrokeGestureRecognizer!
@@ -49,8 +49,7 @@ class CanvasViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     var scrollView: UIScrollView!
     var canvasContainerView: CanvasContainerView!
-    
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         let bounds = view.bounds
@@ -172,20 +171,23 @@ class CanvasViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc func clearButtonAction(_ sender: AnyObject) {
-        guard var strokeCollection = self.strokeCollection else {
+        guard let _ = self.strokeCollection, let selectedDate = selectedDate else {
             return
         }
         self.strokeCollection = StrokeCollection()
         cgView.strokeCollection = self.strokeCollection
-        UserDefaults.standard.removeObject(forKey: cell!.date.description(with: .current))
+        self.delegate?.strokes = self.strokeCollection
+        if let strokeCollection = strokeCollection {
+            self.delegate?.updateStrokeCollection(selectedDate: selectedDate, strokeCollection: strokeCollection)
+        }
+        UserDefaults.standard.removeObject(forKey: selectedDate.description(with: .current))
     }
     
     @objc func doneButtonAction(_ sender: AnyObject) {
         self.delegate?.strokes = self.strokeCollection
-        if let strokeCollection = strokeCollection {
-            self.delegate?.updateStrokeCollection(cell: cell!, strokeCollection: strokeCollection)
+        if let strokeCollection = strokeCollection, let selectedDate = selectedDate {
+            self.delegate?.updateStrokeCollection(selectedDate: selectedDate, strokeCollection: strokeCollection)
         }
-        self.navigationController?.popViewController(animated: true)
     }
     
     @objc func strokeUpdated(_ strokeGesture: StrokeGestureRecognizer) {
@@ -218,6 +220,10 @@ class CanvasViewController: UIViewController, UIGestureRecognizerDelegate {
                     }
                 }
                 strokeCollection!.takeActiveStroke()
+                self.delegate?.strokes = self.strokeCollection
+                if let strokeCollection = strokeCollection, let selectedDate = selectedDate {
+                    self.delegate?.updateStrokeCollection(selectedDate: selectedDate, strokeCollection: strokeCollection)
+                }
             }
         }
         cgView.strokeCollection = strokeCollection
@@ -271,12 +277,15 @@ class CanvasViewController: UIViewController, UIGestureRecognizerDelegate {
     var notificationObservers = [NSObjectProtocol]()
     
     deinit {
+        guard let selectedDate = selectedDate else {
+            return
+        }
         // ** ENCODING **
         let encoder = PropertyListEncoder()
         encoder.outputFormat = .xml
         do {
             let data = try encoder.encode(strokeCollection)
-            UserDefaults.standard.set(data, forKey: cell!.date.description(with: .current))
+            UserDefaults.standard.set(data, forKey: selectedDate.description(with: .current))
         }
         catch {
             print(error)

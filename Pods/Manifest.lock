@@ -1,20 +1,24 @@
 PODS:
+  - FSCalendar (2.8.0)
   - JTAppleCalendar (7.1.6)
   - SnapKit (4.2.0)
 
 DEPENDENCIES:
+  - FSCalendar
   - JTAppleCalendar (~> 7.0)
   - SnapKit (~> 4.0)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
+    - FSCalendar
     - JTAppleCalendar
     - SnapKit
 
 SPEC CHECKSUMS:
+  FSCalendar: 3a5ed3636e2ba1b83ebebfcf0c2603105a6f5efe
   JTAppleCalendar: abb30678f42a4ef8a340a932b1dcb8c85a33dac2
   SnapKit: fe8a619752f3f27075cc9a90244d75c6c3f27e2a
 
-PODFILE CHECKSUM: 844a0498ddf167b5588f92db8f2e6307a287206a
+PODFILE CHECKSUM: 8e1e255d4226eeef83102009779e56ff870fcd54
 
 COCOAPODS: 1.5.3

@@ -12,9 +12,6 @@
 		58A0DB95218F964200545985 /* StrokeCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A0DB8F218F964100545985 /* StrokeCollection.swift */; };
 		58A0DB97218F964200545985 /* CGMathExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A0DB91218F964200545985 /* CGMathExtensions.swift */; };
 		58A0DB98218F964200545985 /* StrokeGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A0DB92218F964200545985 /* StrokeGestureRecognizer.swift */; };
-		58A0DB9D218F9EEE00545985 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A0DB9C218F9EEE00545985 /* CalendarView.swift */; };
-		58A0DB9F218FA96C00545985 /* CalendarCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58A0DB9E218FA96C00545985 /* CalendarCellView.xib */; };
-		58A0DBA3218FAA9000545985 /* CalendarCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A0DBA2218FAA9000545985 /* CalendarCellView.swift */; };
 		58F549AD218F82C50011104A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F549AC218F82C50011104A /* AppDelegate.swift */; };
 		58F549AF218F82C50011104A /* CalendarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F549AE218F82C50011104A /* CalendarViewController.swift */; };
 		58F549B4218F82C70011104A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58F549B3218F82C70011104A /* Assets.xcassets */; };
@@ -28,9 +25,6 @@
 		58A0DB8F218F964100545985 /* StrokeCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StrokeCollection.swift; sourceTree = "<group>"; };
 		58A0DB91218F964200545985 /* CGMathExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGMathExtensions.swift; sourceTree = "<group>"; };
 		58A0DB92218F964200545985 /* StrokeGestureRecognizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StrokeGestureRecognizer.swift; sourceTree = "<group>"; };
-		58A0DB9C218F9EEE00545985 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
-		58A0DB9E218FA96C00545985 /* CalendarCellView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CalendarCellView.xib; sourceTree = "<group>"; };
-		58A0DBA2218FAA9000545985 /* CalendarCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCellView.swift; sourceTree = "<group>"; };
 		58F549A9218F82C50011104A /* DailyPlanner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DailyPlanner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		58F549AC218F82C50011104A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Views/AppDelegate.swift; sourceTree = "<group>"; };
 		58F549AE218F82C50011104A /* CalendarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewController.swift; sourceTree = "<group>"; };
@@ -65,8 +59,6 @@
 		583FBF94218FD8C9003F4673 /* Xibs */ = {
 			isa = PBXGroup;
 			children = (
-				58A0DBA2218FAA9000545985 /* CalendarCellView.swift */,
-				58A0DB9E218FA96C00545985 /* CalendarCellView.xib */,
 			);
 			path = Xibs;
 			sourceTree = "<group>";
@@ -74,7 +66,6 @@
 		58A0DB99218F9B3600545985 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				58A0DB9C218F9EEE00545985 /* CalendarView.swift */,
 				58F549BE218F87AB0011104A /* CanvasContainerView.swift */,
 			);
 			path = Views;
@@ -201,7 +192,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58A0DB9F218FA96C00545985 /* CalendarCellView.xib in Resources */,
 				58F549B4218F82C70011104A /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -256,8 +246,6 @@
 			files = (
 				58F549AF218F82C50011104A /* CalendarViewController.swift in Sources */,
 				58A0DB95218F964200545985 /* StrokeCollection.swift in Sources */,
-				58A0DB9D218F9EEE00545985 /* CalendarView.swift in Sources */,
-				58A0DBA3218FAA9000545985 /* CalendarCellView.swift in Sources */,
 				58F549AD218F82C50011104A /* AppDelegate.swift in Sources */,
 				58A0DB97218F964200545985 /* CGMathExtensions.swift in Sources */,
 				58A0DB94218F964200545985 /* CGDrawingEngine.swift in Sources */,
@@ -395,7 +383,10 @@
 				DEVELOPMENT_TEAM = N9Y9895ZXT;
 				INFOPLIST_FILE = DailyPlanner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = vrmars.DailyPlanner;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
@@ -412,7 +403,10 @@
 				DEVELOPMENT_TEAM = N9Y9895ZXT;
 				INFOPLIST_FILE = DailyPlanner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = vrmars.DailyPlanner;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;

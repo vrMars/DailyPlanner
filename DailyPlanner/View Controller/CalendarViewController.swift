@@ -10,7 +10,7 @@ import UIKit
 import FSCalendar
 import SnapKit
 
-class CalendarViewController: UIViewController, CanvasViewDelegate {
+class CalendarViewController: UIViewController {
 
     // will contain all info about drawn strokes -> recreate for selected date
     var strokes: StrokeCollection? {
@@ -102,12 +102,10 @@ extension CalendarViewController: FSCalendarDataSource, FSCalendarDelegate {
         }
         let canvasVC = CanvasViewController()
         self.canvasVC = canvasVC
-        canvasVC.delegate = self
-        canvasVC.selectedDate = date
         // ** DECODER **
         if let data = UserDefaults.standard.object(forKey: date.description(with: .current)) as? Data {
             let decoder = PropertyListDecoder()
-            canvasVC.strokeCollection = try? decoder.decode(StrokeCollection.self, from: data)
+           // canvasVC.strokeCollection = try? decoder.decode(StrokeCollection.self, from: data)
         }
         self.addChild(canvasVC)
         view.addSubview(canvasVC.view)

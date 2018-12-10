@@ -8,5 +8,6 @@ target 'DailyPlanner' do
   # Pods for DailyPlanner
   pod 'SnapKit', '~> 4.0'
   pod 'FSCalendar'
+  pod 'Sketch'
 
 end

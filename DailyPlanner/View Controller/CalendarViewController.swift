@@ -12,12 +12,6 @@ import SnapKit
 
 class CalendarViewController: UIViewController {
 
-    // will contain all info about drawn strokes -> recreate for selected date
-    var strokes: StrokeCollection? {
-        didSet {
-            calendarView.reloadData()
-        }
-    }
     var calendarView: FSCalendar!
     var canvasVC: CanvasViewController?
     
@@ -69,10 +63,11 @@ extension CalendarViewController: FSCalendarDataSource, FSCalendarDelegate {
     }
 
     func calendar(_ calendar: FSCalendar, numberOfEventsFor date: Date) -> Int {
-        if let data = UserDefaults.standard.object(forKey: date.description(with: .current)) as? Data {
-            let decoder = PropertyListDecoder()
-            let tempVar = try? decoder.decode(StrokeCollection.self, from: data)
-            return (tempVar != nil) ? 1 : 0
+
+        guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return 0 }
+        let fileURL = documentsDirectory.appendingPathComponent(date.description(with: .current))
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            return 1
         }
         return 0
     }
@@ -88,6 +83,7 @@ extension CalendarViewController: FSCalendarDataSource, FSCalendarDelegate {
         canvasVC.selectedDate = date.description(with: .current)
         // ** DECODER **
         canvasVC.cachedImage = loadImageFromDiskWith(fileName: date.description(with: .current))
+        canvasVC.calendarView = calendar
         self.addChild(canvasVC)
         view.addSubview(canvasVC.view)
         canvasVC.view.snp.makeConstraints { make in

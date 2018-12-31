@@ -7,10 +7,12 @@
 //
 
 import UIKit
+import FSCalendar
 import Sketch
 
 class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDelegate {
     var containerView: UIView!
+    var calendarView: FSCalendar!
     var sketchView: SketchView!
     var cachedImage: UIImage?
     var selectedDate: String!
@@ -67,10 +69,14 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
     }
 
     func drawView(_ view: SketchView, willBeginDrawUsingTool tool: AnyObject) {
-      self.saveTimer?.invalidate()
+        if tool as? NSObject != NSNull() {
+            self.saveTimer?.invalidate()
+        }
     }
     func drawView(_ view: SketchView, didEndDrawUsingTool tool: AnyObject) {
-       restartTimer()
+        if tool as? NSObject != NSNull() {
+            restartTimer()
+        }
     }
 
     func restartTimer() {
@@ -79,10 +85,12 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
             guard let image = self.sketchView.image else { return }
             print("fired")
             self.saveImage(imageName: self.selectedDate, image: image)
+            self.calendarView.reloadData()
         }
     }
 
     func saveImage(imageName: String, image: UIImage) {
+        
         guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
 
         let fileName = imageName
@@ -105,8 +113,8 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
         } catch let error {
             print("error saving file with error", error)
         }
-
     }
+
 
 
 

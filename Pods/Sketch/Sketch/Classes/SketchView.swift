@@ -130,10 +130,6 @@ public class SketchView: UIView {
 
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first, touch.type == .pencil else {
-            currentTool = toolWithCurrentSettings()
-            currentTool?.lineWidth = lineWidth
-            currentTool?.lineColor = lineColor
-            currentTool?.lineAlpha = lineAlpha
             return
         }
 

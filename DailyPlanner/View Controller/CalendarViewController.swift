@@ -10,7 +10,7 @@ import UIKit
 import FSCalendar
 import SnapKit
 
-class CalendarViewController: UIViewController, CanvasViewDelegate {
+class CalendarViewController: UIViewController {
 
     // will contain all info about drawn strokes -> recreate for selected date
     var strokes: StrokeCollection? {
@@ -41,23 +41,6 @@ class CalendarViewController: UIViewController, CanvasViewDelegate {
     
     override var prefersStatusBarHidden: Bool {
         return true
-    }
-    
-    func updateStrokeCollection(selectedDate: Date, strokeCollection: StrokeCollection) {
-        if strokeCollection.strokes.isEmpty {
-            UserDefaults.standard.removeObject(forKey: selectedDate.description(with: .current))
-            return
-        }
-        // ** ENCODING **
-        let encoder = PropertyListEncoder()
-        encoder.outputFormat = .xml
-        do {
-            let data = try encoder.encode(strokeCollection)
-            UserDefaults.standard.set(data, forKey: selectedDate.description(with: .current))
-        }
-        catch {
-            print(error)
-        }
     }
 }
 
@@ -102,13 +85,9 @@ extension CalendarViewController: FSCalendarDataSource, FSCalendarDelegate {
         }
         let canvasVC = CanvasViewController()
         self.canvasVC = canvasVC
-        canvasVC.delegate = self
-        canvasVC.selectedDate = date
+        canvasVC.selectedDate = date.description(with: .current)
         // ** DECODER **
-        if let data = UserDefaults.standard.object(forKey: date.description(with: .current)) as? Data {
-            let decoder = PropertyListDecoder()
-            canvasVC.strokeCollection = try? decoder.decode(StrokeCollection.self, from: data)
-        }
+        canvasVC.cachedImage = loadImageFromDiskWith(fileName: date.description(with: .current))
         self.addChild(canvasVC)
         view.addSubview(canvasVC.view)
         canvasVC.view.snp.makeConstraints { make in
@@ -120,5 +99,21 @@ extension CalendarViewController: FSCalendarDataSource, FSCalendarDelegate {
 
         calendarView.setScope(FSCalendarScope.week, animated: true)
     }
-}
 
+    func loadImageFromDiskWith(fileName: String) -> UIImage? {
+
+        let documentDirectory = FileManager.SearchPathDirectory.documentDirectory
+
+        let userDomainMask = FileManager.SearchPathDomainMask.userDomainMask
+        let paths = NSSearchPathForDirectoriesInDomains(documentDirectory, userDomainMask, true)
+
+        if let dirPath = paths.first {
+            let imageUrl = URL(fileURLWithPath: dirPath).appendingPathComponent(fileName)
+            let image = UIImage(contentsOfFile: imageUrl.path)
+            return image
+
+        }
+
+        return nil
+    }
+}

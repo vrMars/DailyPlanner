@@ -7,364 +7,140 @@
 //
 
 import UIKit
+import Sketch
 
-protocol CanvasViewDelegate {
-    var strokes: StrokeCollection? { get set }
-    
-    func updateStrokeCollection(selectedDate: Date, strokeCollection: StrokeCollection)
-}
-
-class CanvasViewController: UIViewController, UIGestureRecognizerDelegate {
-    
-    var cgView: StrokeCGView!
-
-    var delegate: CanvasViewDelegate?
-    var selectedDate: Date?
-    
-    var fingerStrokeRecognizer: StrokeGestureRecognizer!
-    var pencilStrokeRecognizer: StrokeGestureRecognizer!
-    
-    var clearButton: UIButton!
-    var doneButton: UIButton!
-    var pencilButton: UIButton!
-    
-    var configurations = [() -> ()]()
-    
-    var strokeSamples: [StrokeSample]? {
-        didSet (newValue) {
-            guard let strokeCollection = self.strokeCollection, let activeStroke = strokeCollection.activeStroke else {
-                return
-            }
-            activeStroke.samples = newValue!
-        }
-    }
-    
-    var strokeCollection: StrokeCollection? {
-        didSet (newValue) {
-            guard let cgView = self.cgView else {
-                return
-            }
-            cgView.strokeCollection = newValue
-        }
-    }
-    var scrollView: UIScrollView!
-    var canvasContainerView: CanvasContainerView!
+class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDelegate {
+    var containerView: UIView!
+    var sketchView: SketchView!
+    var cachedImage: UIImage?
+    var selectedDate: String!
+    var backgroundImage: UIImageView!
+    var scale: CGFloat = 1.0
+    var saveTimer: Timer?
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        let bounds = view.bounds
-        let screenBounds = UIScreen.main.bounds
-        let maxScreenDimension = max(screenBounds.width, screenBounds.height)
-        
-        let flexibleDimensions: UIView.AutoresizingMask = [.flexibleWidth, .flexibleHeight]
-        
-        let scrollView = UIScrollView(frame: bounds)
-        scrollView.autoresizingMask = flexibleDimensions
+
+        let scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
+
+        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height + 300))
+        self.containerView = containerView
+
+        let paper = UIImage(named: "lined_background.png")
+
+        let sketchView = SketchView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height + 300))
+        self.sketchView = sketchView
+        if self.cachedImage != nil {
+            sketchView.loadImage(image: self.cachedImage!)
+        }
+
+        sketchView.sketchViewDelegate = self
+
+
+        let paperImageView = UIImageView(frame: sketchView.frame)
+        backgroundImage = paperImageView
+        paperImageView.image = paper
+
         view.addSubview(scrollView)
-        self.scrollView = scrollView
-        
-        let cgView = StrokeCGView(frame: CGRect(origin: .zero, size: CGSize(width: maxScreenDimension, height:maxScreenDimension)))
-        cgView.autoresizingMask = flexibleDimensions
-        self.cgView = cgView
-        self.cgView.strokeCollection = strokeCollection
-        
-        
-        view.backgroundColor = UIColor.white
-        
-        let canvasContainerView = CanvasContainerView(canvasSize: cgView.frame.size)
-        canvasContainerView.documentView = cgView
-        self.canvasContainerView = canvasContainerView
-        scrollView.contentSize = canvasContainerView.frame.size
-        scrollView.contentOffset = CGPoint(x: (canvasContainerView.frame.width - scrollView.bounds.width) / 2.0,
-                                           y: (canvasContainerView.frame.height - scrollView.bounds.height) / 2.0)
-        scrollView.addSubview(canvasContainerView)
-        scrollView.backgroundColor = canvasContainerView.backgroundColor
-        scrollView.maximumZoomScale = 3.0
-        scrollView.minimumZoomScale = 0.5
-        scrollView.panGestureRecognizer.allowedTouchTypes = [UITouch.TouchType.direct.rawValue as NSNumber]
-        scrollView.pinchGestureRecognizer?.allowedTouchTypes = [UITouch.TouchType.direct.rawValue as NSNumber]
+
+        containerView.addSubview(sketchView)
+//        containerView.addSubview(backgroundImage) //add transparency by makign this view dynamically calculated at runtime
+        scrollView.addSubview(containerView)
         scrollView.delegate = self
-        // We put our UI elements on top of the scroll view, so we don't want any of the
-        // delay or cancel machinery in place.
-        scrollView.delaysContentTouches = false
-        
-        let fingerStrokeRecognizer = StrokeGestureRecognizer(target: self, action: #selector(strokeUpdated(_:)))
-        fingerStrokeRecognizer.delegate = self
-        fingerStrokeRecognizer.cancelsTouchesInView = false
-        scrollView.addGestureRecognizer(fingerStrokeRecognizer)
-        fingerStrokeRecognizer.coordinateSpaceView = cgView
-        fingerStrokeRecognizer.isForPencil = false
-        self.fingerStrokeRecognizer = fingerStrokeRecognizer
-        
-        let pencilStrokeRecognizer = StrokeGestureRecognizer(target: self, action: #selector(strokeUpdated(_:)))
-        pencilStrokeRecognizer.delegate = self
-        pencilStrokeRecognizer.cancelsTouchesInView = false
-        scrollView.addGestureRecognizer(pencilStrokeRecognizer)
-        pencilStrokeRecognizer.coordinateSpaceView = cgView
-        pencilStrokeRecognizer.isForPencil = true
-        self.pencilStrokeRecognizer = pencilStrokeRecognizer
-        
-        
-        
-        setupConfigurations()
-        
-        clearButton = addButton(title: "clear", action: #selector(clearButtonAction(_:)) )
-        doneButton = addButton(title: "done", action: #selector(doneButtonAction(_:)) )
-        
-        setupPencilUI()
+        scrollView.minimumZoomScale = 1.0
+        scrollView.maximumZoomScale = 2.5
+        scrollView.contentSize = CGSize(width: sketchView.frame.width, height: sketchView.frame.height)
+
+        scrollView.panGestureRecognizer.allowedTouchTypes = [0] // only finger
+        scrollView.pinchGestureRecognizer?.allowedTouchTypes = [0]
+
     }
-    
-    // MARK: View setup helpers.
-    var buttons = [UIButton]()
-    func addButton(title: String, action: Selector) -> UIButton {
-        let bounds = view.bounds
-        let button = UIButton(type: .custom)
-        let minY: CGFloat
-        if let lastButton = buttons.last {
-            minY = lastButton.frame.maxY
-        } else {
-            minY = bounds.minY + 10.0
-        }
-        button.setTitleColor(UIColor.orange, for: [])
-        button.setTitleColor(UIColor.lightGray, for: .highlighted)
-        button.setTitle(title, for: [])
-        button.sizeToFit()
-        button.frame = button.frame.insetBy(dx: -20.0, dy: -4.0)
-        button.frame.origin = CGPoint(x: bounds.maxX - button.frame.width - 5.0, y: minY + 10.0)
-        button.autoresizingMask = [.flexibleLeftMargin, .flexibleBottomMargin]
-        button.addTarget(self, action: action, for: .touchUpInside)
-        let buttonLayer = button.layer
-        buttonLayer.cornerRadius = 5.0
-        button.backgroundColor = UIColor(white: 1.0, alpha: 0.4)
-        view.addSubview(button)
-        buttons.append(button)
-        return button
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        guard let image = self.sketchView.image else { return }
+        self.saveImage(imageName: self.selectedDate, image: image)
     }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        scrollView.flashScrollIndicators()
+
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return containerView
     }
-    
-    override var prefersStatusBarHidden: Bool {
-        return false
+
+    func drawView(_ view: SketchView, willBeginDrawUsingTool tool: AnyObject) {
+      self.saveTimer?.invalidate()
     }
-    
-    func setupConfigurations() {
-        configurations = [
-            { self.cgView.displayOptions = .ink },
-        ]
-        configurations.first?()
+    func drawView(_ view: SketchView, didEndDrawUsingTool tool: AnyObject) {
+       restartTimer()
     }
-    
-    func toggleConfiguration(_ sender: UIButton) {
-        if let index = Int(sender.titleLabel!.text!) {
-            let nextIndex = (index + 1) % configurations.count
-            configurations[nextIndex]()
-            sender.setTitle(String(nextIndex), for: [])
+
+    func restartTimer() {
+        self.saveTimer?.invalidate()
+        self.saveTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { (Timer) in
+            guard let image = self.sketchView.image else { return }
+            print("fired")
+            self.saveImage(imageName: self.selectedDate, image: image)
         }
     }
-    
-    func receivedAllUpdatesForStroke(_ stroke: Stroke) {
-        cgView.setNeedsDisplay(for: stroke)
-        stroke.clearUpdateInfo()
-    }
-    
-    @objc func clearButtonAction(_ sender: AnyObject) {
-        guard let _ = self.strokeCollection, let selectedDate = selectedDate else {
-            return
-        }
-        self.strokeCollection = StrokeCollection()
-        cgView.strokeCollection = self.strokeCollection
-        self.delegate?.strokes = self.strokeCollection
-        if let strokeCollection = strokeCollection {
-            self.delegate?.updateStrokeCollection(selectedDate: selectedDate, strokeCollection: strokeCollection)
-        }
-        UserDefaults.standard.removeObject(forKey: selectedDate.description(with: .current))
-    }
-    
-    @objc func doneButtonAction(_ sender: AnyObject) {
-        self.delegate?.strokes = self.strokeCollection
-        if let strokeCollection = strokeCollection, let selectedDate = selectedDate {
-            self.delegate?.updateStrokeCollection(selectedDate: selectedDate, strokeCollection: strokeCollection)
-        }
-    }
-    
-    @objc func strokeUpdated(_ strokeGesture: StrokeGestureRecognizer) {
-        
-        if strokeGesture === pencilStrokeRecognizer {
-            lastSeenPencilInteraction = Date.timeIntervalSinceReferenceDate
-        }
-        
-        if self.strokeCollection == nil {
-            self.strokeCollection = StrokeCollection()
-        }
-        
-        var stroke: Stroke?
-        if strokeGesture.state != .cancelled {
-            stroke = strokeGesture.stroke
-            if strokeGesture.state == .began ||
-                (strokeGesture.state == .ended && strokeCollection!.activeStroke == nil) {
-                strokeCollection!.activeStroke = stroke
+
+    func saveImage(imageName: String, image: UIImage) {
+        guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+
+        let fileName = imageName
+        let fileURL = documentsDirectory.appendingPathComponent(fileName)
+        guard let data = image.pngData() else { return }
+
+        //Checks if file exists, removes it if so.
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            do {
+                try FileManager.default.removeItem(atPath: fileURL.path)
+                print("Removed old image")
+            } catch let removeError {
+                print("couldn't remove file at path", removeError)
             }
-        } else {
-            strokeCollection!.activeStroke = nil
+
         }
-        
-        if let stroke = stroke {
-            if strokeGesture.state == .ended {
-                if strokeGesture === pencilStrokeRecognizer {
-                    // Make sure we get the final stroke update if needed.
-                    stroke.receivedAllNeededUpdatesBlock = { [weak self] in
-                        self?.receivedAllUpdatesForStroke(stroke)
-                    }
-                }
-                strokeCollection!.takeActiveStroke()
-                self.delegate?.strokes = self.strokeCollection
-                if let strokeCollection = strokeCollection, let selectedDate = selectedDate {
-                    self.delegate?.updateStrokeCollection(selectedDate: selectedDate, strokeCollection: strokeCollection)
-                }
-            }
-        }
-        cgView.strokeCollection = strokeCollection
-    }
-    
-    
-    // MARK: Pencil Recognition and UI Adjustments
-    /*
-     Since usage of the Apple Pencil can be very temporary, the best way to
-     actually check for it being in use is to remember the last interaction.
-     Also make sure to provide an escape hatch if you modify your UI for
-     times when the pencil is in use vs. not.
-     */
-    
-    // Timeout the pencil mode if no pencil has been seen for 5 minutes and the app is brought back in foreground.
-    let pencilResetInterval = TimeInterval(60.0 * 5)
-    
-    var lastSeenPencilInteraction: TimeInterval? {
-        didSet {
-            if lastSeenPencilInteraction != nil && !pencilMode {
-                pencilMode = true
-            }
-        }
-    }
-    
-    private func setupPencilUI() {
-        pencilButton = addButton(title: "pencil", action: #selector(stopPencilButtonAction(_:)) )
-        pencilButton.titleLabel?.textAlignment = NSTextAlignment.left
-        let imageView = UIImageView(image: UIImage.init(named: "Close"))
-        let bounds = pencilButton.bounds
-        let dimension = bounds.height - 16.0
-        pencilButton.contentEdgeInsets = UIEdgeInsets(top: 0, left: dimension, bottom: 0, right: 0)
-        imageView.frame = CGRect(x: bounds.minX + 3.0, y: bounds.minY + (bounds.height - dimension) - 7.0,
-                                 width: dimension, height: dimension)
-        imageView.alpha = 0.7
-        pencilButton.addSubview(imageView)
-        self.pencilMode = false
-        
-        notificationObservers.append(
-            NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: UIApplication.shared, queue: nil)
-            { [unowned self](_) in
-                if self.pencilMode &&
-                    (self.lastSeenPencilInteraction == nil ||
-                        Date.timeIntervalSinceReferenceDate - self.lastSeenPencilInteraction! > self.pencilResetInterval) {
-                    self.stopPencilButtonAction(nil)
-                }
-            }
-        )
-    }
-    
-    var notificationObservers = [NSObjectProtocol]()
-    
-    deinit {
-        guard let selectedDate = selectedDate else {
-            return
-        }
-        // ** ENCODING **
-        let encoder = PropertyListEncoder()
-        encoder.outputFormat = .xml
+
         do {
-            let data = try encoder.encode(strokeCollection)
-            UserDefaults.standard.set(data, forKey: selectedDate.description(with: .current))
+            try data.write(to: fileURL)
+        } catch let error {
+            print("error saving file with error", error)
         }
-        catch {
-            print(error)
-        }
-        let defaultCenter = NotificationCenter.default
-        for closure in notificationObservers {
-            defaultCenter.removeObserver(closure)
-        }
+
     }
-    
-    var pencilMode = false {
-        didSet {
-            if pencilMode {
-                scrollView.panGestureRecognizer.minimumNumberOfTouches = 1
-                pencilButton.isHidden = false
-                if let view = fingerStrokeRecognizer.view {
-                    view.removeGestureRecognizer(fingerStrokeRecognizer)
-                }
-            } else {
-                scrollView.panGestureRecognizer.minimumNumberOfTouches = 2
-                pencilButton.isHidden = true
-                if fingerStrokeRecognizer.view == nil {
-                    scrollView.addGestureRecognizer(fingerStrokeRecognizer)
-                }
+
+
+
+    @objc private func onPinch(_ gesture: UIPinchGestureRecognizer) {
+        if let view = gesture.view {
+
+            switch gesture.state {
+            case .changed:
+                let pinchCenter = CGPoint(x: gesture.location(in: view).x - view.bounds.midX,
+                                          y: gesture.location(in: view).y - view.bounds.midY)
+                let transform = view.transform.translatedBy(x: pinchCenter.x, y: pinchCenter.y)
+                    .scaledBy(x: gesture.scale, y: gesture.scale)
+                    .translatedBy(x: -pinchCenter.x, y: -pinchCenter.y)
+                view.transform = transform
+            case .ended:
+                print(gesture.scale)
+                UIView.animate(withDuration: 0.2, animations: {
+                    view.transform = CGAffineTransform.identity
+                })
+            default:
+                return
             }
         }
     }
-    
-    @objc func stopPencilButtonAction(_ sender: AnyObject?) {
-        lastSeenPencilInteraction = nil
-        pencilMode = false
-    }
-    
-    // Since our gesture recognizer is beginning immediately, we do the hit test ambiguation here
-    // instead of adding failure requirements to the gesture for minimizing the delay
-    // to the first action sent and therefore the first lines drawn.
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        
-        for button in buttons {
-            if button.hitTest(touch.location(in:clearButton), with: nil) != nil {
-                return false
-            }
-            else if button.hitTest(touch.location(in: doneButton), with: nil) != nil {
-                return false
-            }
-        }
-        
-        return true
-    }
-    
-    // We want the pencil to recognize simultaniously with all others.
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        if gestureRecognizer === pencilStrokeRecognizer {
-            return otherGestureRecognizer !== fingerStrokeRecognizer
-        }
-        
-        return false
-    }
-    
-    
 }
 
-extension CanvasViewController: UIScrollViewDelegate {
-    
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return self.canvasContainerView
+extension CanvasViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if touch.type != .pencil {
+            return true
+        }
+        return false
     }
-    
-    func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
-        var desiredScale = self.traitCollection.displayScale
-        let existingScale = cgView.contentScaleFactor
-        
-        if scale >= 2.0 {
-            desiredScale *= 2.0
-        }
-        
-        if abs(desiredScale - existingScale) > 0.00001 {
-            cgView.contentScaleFactor = desiredScale
-            cgView.setNeedsDisplay()
-        }
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 }

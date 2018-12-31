@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "16787FDA28EEEB5542008F813C430E76"
-               BuildableName = "FSCalendar.framework"
-               BlueprintName = "FSCalendar"
+               BlueprintIdentifier = "F7777E887D72F740E809963FA5954F2A"
+               BuildableName = "Sketch.framework"
+               BlueprintName = "Sketch"
                ReferencedContainer = "container:Pods.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,9 +45,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "16787FDA28EEEB5542008F813C430E76"
-            BuildableName = "FSCalendar.framework"
-            BlueprintName = "FSCalendar"
+            BlueprintIdentifier = "F7777E887D72F740E809963FA5954F2A"
+            BuildableName = "Sketch.framework"
+            BlueprintName = "Sketch"
             ReferencedContainer = "container:Pods.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

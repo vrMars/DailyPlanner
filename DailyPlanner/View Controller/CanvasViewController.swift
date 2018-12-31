@@ -20,8 +20,6 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        print(self.parent.debugDescription)
-
         let scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
 
         let containerView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height + 300))
@@ -31,9 +29,10 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
 
         let sketchView = SketchView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height + 300))
         self.sketchView = sketchView
-        if cachedImage != nil {
-            sketchView.loadImage(image: cachedImage!)
+        if self.cachedImage != nil {
+            sketchView.loadImage(image: self.cachedImage!)
         }
+
         sketchView.sketchViewDelegate = self
 
 

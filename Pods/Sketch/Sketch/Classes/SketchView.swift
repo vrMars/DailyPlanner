@@ -129,7 +129,13 @@ public class SketchView: UIView {
     }
 
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first, touch.type == .pencil else { return }
+        guard let touch = touches.first, touch.type == .pencil else {
+            currentTool = toolWithCurrentSettings()
+            currentTool?.lineWidth = lineWidth
+            currentTool?.lineColor = lineColor
+            currentTool?.lineAlpha = lineAlpha
+            return
+        }
 
         previousPoint1 = touch.previousLocation(in: self)
         currentPoint = touch.location(in: self)
@@ -157,7 +163,7 @@ public class SketchView: UIView {
     }
 
     public override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else { return }
+        guard let touch = touches.first, touch.type == .pencil else { return }
 
         previousPoint2 = previousPoint1
         previousPoint1 = touch.previousLocation(in: self)
@@ -181,7 +187,7 @@ public class SketchView: UIView {
     fileprivate func finishDrawing() {
         updateCacheImage(false)
         bufferArray.removeAllObjects()
-        sketchViewDelegate?.drawView?(self, didEndDrawUsingTool: currentTool! as AnyObject)
+        sketchViewDelegate?.drawView?(self, didEndDrawUsingTool: currentTool as AnyObject )
         currentTool = nil
     }
 

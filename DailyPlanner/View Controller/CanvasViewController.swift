@@ -16,6 +16,7 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
     var selectedDate: String!
     var backgroundImage: UIImageView!
     var scale: CGFloat = 1.0
+    var saveTimer: Timer?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,15 +53,33 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
 
         scrollView.panGestureRecognizer.allowedTouchTypes = [0] // only finger
         scrollView.pinchGestureRecognizer?.allowedTouchTypes = [0]
+
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        guard let image = self.sketchView.image else { return }
+        self.saveImage(imageName: self.selectedDate, image: image)
     }
 
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return containerView
     }
 
+    func drawView(_ view: SketchView, willBeginDrawUsingTool tool: AnyObject) {
+      self.saveTimer?.invalidate()
+    }
     func drawView(_ view: SketchView, didEndDrawUsingTool tool: AnyObject) {
-        guard let image = view.image else { return }
-        saveImage(imageName: selectedDate, image: image)
+       restartTimer()
+    }
+
+    func restartTimer() {
+        self.saveTimer?.invalidate()
+        self.saveTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { (Timer) in
+            guard let image = self.sketchView.image else { return }
+            print("fired")
+            self.saveImage(imageName: self.selectedDate, image: image)
+        }
     }
 
     func saveImage(imageName: String, image: UIImage) {

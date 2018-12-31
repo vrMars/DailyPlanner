@@ -49,9 +49,9 @@ public class SketchView: UIView {
     private var currentPoint: CGPoint?
     private var previousPoint1: CGPoint?
     private var previousPoint2: CGPoint?
-    private var image: UIImage?
-    private var backgroundImage: UIImage?
-    private var drawMode: ImageRenderingMode = .original
+    public var image: UIImage?
+    public var backgroundImage: UIImage?
+    private var drawMode: ImageRenderingMode = .scale
 
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -70,14 +70,7 @@ public class SketchView: UIView {
     public override func draw(_ rect: CGRect) {
         super.draw(rect)
 
-        switch drawMode {
-        case .original:
-            image?.draw(at: CGPoint.zero)
-            break
-        case .scale:
-            image?.draw(in: self.bounds)
-            break
-        }
+        image?.draw(in: self.bounds)
 
         currentTool?.draw()
     }
@@ -87,16 +80,7 @@ public class SketchView: UIView {
 
         if isUpdate {
             image = nil
-            switch drawMode {
-            case .original:
-                if let backgroundImage = backgroundImage  {
-                    (backgroundImage.copy() as! UIImage).draw(at: CGPoint.zero)
-                }
-                break
-            case .scale:
-                (backgroundImage?.copy() as! UIImage).draw(in: self.bounds)
-                break
-            }
+            (backgroundImage?.copy() as! UIImage).draw(in: self.bounds)
 
             for obj in pathArray {
                 if let tool = obj as? SketchTool {
@@ -104,6 +88,7 @@ public class SketchView: UIView {
                 }
             }
         } else {
+            print("else")
             image?.draw(at: .zero)
             currentTool?.draw()
         }
@@ -225,7 +210,7 @@ public class SketchView: UIView {
 
     public func loadImage(image: UIImage) {
         self.image = image
-        backgroundImage =  image.copy() as? UIImage
+        backgroundImage = image.copy() as? UIImage
         bufferArray.removeAllObjects()
         pathArray.removeAllObjects()
         updateCacheImage(true)

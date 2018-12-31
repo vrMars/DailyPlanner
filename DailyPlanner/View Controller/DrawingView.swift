@@ -18,7 +18,7 @@ class DrawingView: UIView {
     private let pointLimit: Int = 1
     private var preRenderImage: UIImage!
 
-    // MARK: - Initialization
+    // MARK: - Initialization®
 
     override init(frame: CGRect) {
         super.init(frame: frame)

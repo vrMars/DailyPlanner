@@ -11,22 +11,31 @@ import Sketch
 
 class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDelegate {
     var containerView: UIView!
-    var sketchView: DrawingView!
+    var sketchView: SketchView!
+    var cachedImage: UIImage?
+    var selectedDate: String!
     var backgroundImage: UIImageView!
     var scale: CGFloat = 1.0
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        print(self.parent.debugDescription)
+
         let scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
 
         let containerView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height + 300))
         self.containerView = containerView
 
-        let sketchView = DrawingView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height + 300))
-        self.sketchView = sketchView
-
         let paper = UIImage(named: "lined_background.png")
+
+        let sketchView = SketchView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height + 300))
+        self.sketchView = sketchView
+        if cachedImage != nil {
+            sketchView.loadImage(image: cachedImage!)
+        }
+        sketchView.sketchViewDelegate = self
+
 
         let paperImageView = UIImageView(frame: sketchView.frame)
         backgroundImage = paperImageView
@@ -34,8 +43,8 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
 
         view.addSubview(scrollView)
 
-        containerView.addSubview(backgroundImage)
         containerView.addSubview(sketchView)
+//        containerView.addSubview(backgroundImage) //add transparency by makign this view dynamically calculated at runtime
         scrollView.addSubview(containerView)
         scrollView.delegate = self
         scrollView.minimumZoomScale = 1.0
@@ -49,6 +58,39 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return containerView
     }
+
+    func drawView(_ view: SketchView, didEndDrawUsingTool tool: AnyObject) {
+        guard let image = view.image else { return }
+        saveImage(imageName: selectedDate, image: image)
+    }
+
+    func saveImage(imageName: String, image: UIImage) {
+        guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+
+        let fileName = imageName
+        let fileURL = documentsDirectory.appendingPathComponent(fileName)
+        guard let data = image.pngData() else { return }
+
+        //Checks if file exists, removes it if so.
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            do {
+                try FileManager.default.removeItem(atPath: fileURL.path)
+                print("Removed old image")
+            } catch let removeError {
+                print("couldn't remove file at path", removeError)
+            }
+
+        }
+
+        do {
+            try data.write(to: fileURL)
+        } catch let error {
+            print("error saving file with error", error)
+        }
+
+    }
+
+
 
     @objc private func onPinch(_ gesture: UIPinchGestureRecognizer) {
         if let view = gesture.view {

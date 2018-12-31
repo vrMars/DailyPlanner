@@ -15,7 +15,6 @@
 		58F549AD218F82C50011104A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F549AC218F82C50011104A /* AppDelegate.swift */; };
 		58F549AF218F82C50011104A /* CalendarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F549AE218F82C50011104A /* CalendarViewController.swift */; };
 		58F549B4218F82C70011104A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58F549B3218F82C70011104A /* Assets.xcassets */; };
-		58F549BF218F87AB0011104A /* CanvasContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F549BE218F87AB0011104A /* CanvasContainerView.swift */; };
 		5E62E3EDA580AEE5B1A1D854 /* Pods_DailyPlanner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AA8A6F2EEE131C6037D133A /* Pods_DailyPlanner.framework */; };
 /* End PBXBuildFile section */
 
@@ -30,7 +29,6 @@
 		58F549AE218F82C50011104A /* CalendarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewController.swift; sourceTree = "<group>"; };
 		58F549B3218F82C70011104A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		58F549B8218F82C70011104A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		58F549BE218F87AB0011104A /* CanvasContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasContainerView.swift; sourceTree = "<group>"; };
 		6AA8A6F2EEE131C6037D133A /* Pods_DailyPlanner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DailyPlanner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		87A3D6D965700B775D9DE461 /* Pods-DailyPlanner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DailyPlanner.release.xcconfig"; path = "Pods/Target Support Files/Pods-DailyPlanner/Pods-DailyPlanner.release.xcconfig"; sourceTree = "<group>"; };
 		EB88FDC5B743F2562DA094DC /* Pods-DailyPlanner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DailyPlanner.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DailyPlanner/Pods-DailyPlanner.debug.xcconfig"; sourceTree = "<group>"; };
@@ -66,7 +64,6 @@
 		58A0DB99218F9B3600545985 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				58F549BE218F87AB0011104A /* CanvasContainerView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -251,7 +248,6 @@
 				58F549AD218F82C50011104A /* AppDelegate.swift in Sources */,
 				58A0DB97218F964200545985 /* CGMathExtensions.swift in Sources */,
 				58A0DB94218F964200545985 /* CGDrawingEngine.swift in Sources */,
-				58F549BF218F87AB0011104A /* CanvasContainerView.swift in Sources */,
 				584E5A8B21911F3400788F76 /* CanvasViewController.swift in Sources */,
 				58A0DB98218F964200545985 /* StrokeGestureRecognizer.swift in Sources */,
 			);

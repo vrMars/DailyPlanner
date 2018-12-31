@@ -21,11 +21,12 @@ class CalendarViewController: UIViewController {
         self.calendarView = calendarView
         calendarView.dataSource = self
         calendarView.delegate = self
-
+        calendarView.select(calendarView.today)
 
         view.backgroundColor = UIColor.white
         view.addSubview(calendarView)
 
+        selectToday()
         configureCalendarApperance(calendarView)
     }
     
@@ -34,7 +35,7 @@ class CalendarViewController: UIViewController {
     }
     
     override var prefersStatusBarHidden: Bool {
-        return true
+        return false
     }
 }
 
@@ -45,7 +46,21 @@ private func configureCalendarApperance(_ calendarView: FSCalendar) {
 
     calendarView.scope = .week
 
+    // Calendar
     calendarView.clipsToBounds = false
+    calendarView.backgroundColor = UIColor(red: 0.9569, green: 0.9569, blue: 0.9569, alpha: 1.0)
+
+    // Dates
+    calendarView.appearance.eventDefaultColor = UIColor(red: 0.051, green: 0.6471, blue: 0, alpha: 1.0)
+    calendarView.appearance.titleFont = UIFont.monospacedDigitSystemFont(ofSize: 24, weight: UIFont.Weight.light)
+
+    // Day of the week
+    calendarView.appearance.weekdayFont = UIFont.systemFont(ofSize: 28, weight: UIFont.Weight.medium)
+    calendarView.appearance.weekdayTextColor = .black
+
+    // Header
+    calendarView.appearance.headerTitleFont = UIFont.systemFont(ofSize: 36, weight: UIFont.Weight.heavy)
+    calendarView.appearance.headerTitleColor = .black
 
 }
 
@@ -84,6 +99,30 @@ extension CalendarViewController: FSCalendarDataSource, FSCalendarDelegate {
         // ** DECODER **
         canvasVC.cachedImage = loadImageFromDiskWith(fileName: date.description(with: .current))
         canvasVC.calendarView = calendar
+        self.addChild(canvasVC)
+        view.addSubview(canvasVC.view)
+        canvasVC.view.snp.makeConstraints { make in
+            make.top.equalTo(calendarView.snp.bottom)
+            make.bottom.equalToSuperview()
+            make.left.right.equalToSuperview()
+        }
+        canvasVC.didMove(toParent: self)
+
+        calendarView.setScope(FSCalendarScope.week, animated: true)
+    }
+
+    func selectToday() {
+        if self.canvasVC != nil {
+            self.canvasVC?.removeFromParent()
+            self.canvasVC?.view.removeFromSuperview()
+            self.canvasVC = nil
+        }
+        let canvasVC = CanvasViewController()
+        self.canvasVC = canvasVC
+        canvasVC.selectedDate = calendarView.today?.description(with: .current)
+        // ** DECODER **
+        canvasVC.cachedImage = loadImageFromDiskWith(fileName: (calendarView.today?.description(with: .current))!)
+        canvasVC.calendarView = calendarView
         self.addChild(canvasVC)
         view.addSubview(canvasVC.view)
         canvasVC.view.snp.makeConstraints { make in

@@ -28,25 +28,18 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
         let containerView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height + 300))
         self.containerView = containerView
 
-        let paper = UIImage(named: "lined_background.png")
-
         let sketchView = SketchView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height + 300))
         self.sketchView = sketchView
+
         if self.cachedImage != nil {
             sketchView.loadImage(image: self.cachedImage!)
         }
 
         sketchView.sketchViewDelegate = self
 
-
-        let paperImageView = UIImageView(frame: sketchView.frame)
-        backgroundImage = paperImageView
-        paperImageView.image = paper
-
         view.addSubview(scrollView)
 
         containerView.addSubview(sketchView)
-//        containerView.addSubview(backgroundImage) //add transparency by makign this view dynamically calculated at runtime
         scrollView.addSubview(containerView)
         scrollView.delegate = self
         scrollView.minimumZoomScale = 1.0

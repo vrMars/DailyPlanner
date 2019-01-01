@@ -45,6 +45,7 @@ public class SketchView: UIView {
             paths.add(pathArray.lastObject)
         }
     }
+    private var removalArray: NSMutableArray = NSMutableArray()
     private let bufferArray: NSMutableArray = NSMutableArray()
     private var currentPoint: CGPoint?
     private var previousPoint1: CGPoint?
@@ -141,6 +142,18 @@ public class SketchView: UIView {
         currentTool?.lineAlpha = lineAlpha
 
         switch currentTool! {
+        case is EraserTool:
+            guard let currentTool = currentTool as? EraserTool else { return }
+            for pen in pathArray {
+                guard let pen = pen as? PenTool else { continue }
+                for index in -20...20 {
+                    let index = CGFloat(index)
+                    if pen.path.contains(CGPoint(x: currentPoint!.x + index, y: currentPoint!.y + index)) {
+                        //removalArray.add(pen)
+                        break
+                    }
+                }
+            }
         case is PenTool:
             guard let penTool = currentTool as? PenTool else { return }
             pathArray.add(penTool)
@@ -156,6 +169,7 @@ public class SketchView: UIView {
             pathArray.add(currentTool)
             currentTool.setInitialPoint(currentPoint!)
         }
+
     }
 
     public override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -165,11 +179,33 @@ public class SketchView: UIView {
         previousPoint1 = touch.previousLocation(in: self)
         currentPoint = touch.location(in: self)
 
-        if let penTool = currentTool as? PenTool {
+        if let eraserTool = currentTool as? EraserTool {
+            for pen in pathArray {
+                guard let pen = pen as? PenTool else { continue }
+                for index in -20...20 {
+                    let index = CGFloat(index)
+                    if pen.path.contains(CGPoint(x: currentPoint!.x + index, y: currentPoint!.y + index)) {
+                        removalArray.add(pen)
+                        break
+                    }
+                }
+            }
+            print("im out")
+            for each in removalArray {
+                if removalArray.count > 2 {
+                    print(pathArray.indexOfObjectIdentical(to: each))
+                }
+                if pathArray.count > pathArray.indexOfObjectIdentical(to: each) {
+                    (pathArray.object(at: pathArray.indexOfObjectIdentical(to: each)) as! PenTool).lineColor = .red
+                }
+            }
+            updateCacheImage(true)
+            setNeedsDisplay()
+        } else if let penTool = currentTool as? PenTool {
             let renderingBox = penTool.createBezierRenderingBox(previousPoint2!, widhPreviousPoint: previousPoint1!, withCurrentPoint: currentPoint!)
-
             setNeedsDisplay(renderingBox)
-        } else {
+        }
+        else {
             currentTool?.moveFromPoint(previousPoint1!, toPoint: currentPoint!)
             setNeedsDisplay()
         }
@@ -177,11 +213,16 @@ public class SketchView: UIView {
 
     public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         touchesMoved(touches, with: event)
+        for each in removalArray {
+            pathArray.removeObject(identicalTo: each)
+        }
+        setNeedsDisplay()
         finishDrawing()
     }
 
     fileprivate func finishDrawing() {
-        updateCacheImage(false)
+        updateCacheImage(removalArray.count == 0 ? false : true)
+        removalArray.removeAllObjects()
         bufferArray.removeAllObjects()
         sketchViewDelegate?.drawView?(self, didEndDrawUsingTool: currentTool as AnyObject )
         currentTool = nil

@@ -61,7 +61,6 @@ class PenTool: UIBezierPath, SketchTool {
         boundingBox.origin.y -= lineWidth * 2.0
         boundingBox.size.width += lineWidth * 4.0
         boundingBox.size.height += lineWidth * 4.0
-
         return boundingBox
     }
 

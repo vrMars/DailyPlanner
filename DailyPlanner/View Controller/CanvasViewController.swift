@@ -9,10 +9,10 @@
 import UIKit
 import FSCalendar
 import Floaty
-import Sketch
 
 class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDelegate {
     var containerView: UIView!
+    var fab: Floaty!
     var calendarView: FSCalendar!
     var sketchView: SketchView!
     var cachedImage: UIImage?
@@ -24,21 +24,8 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let actionButton = Floaty()
-        // fab action items
-        actionButton.addItem("Erase", icon: UIImage(named: "clear")) { item in
-
-            let alert = UIAlertController(title: "Warning", message: "Are you sure you want to clear this page?", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Yes", style: .destructive) { handler in
-                self.sketchView.loadImage(image: UIImage())
-                self.eraseCachedImage(imageName: self.selectedDate)
-                self.calendarView.reloadData()
-            })
-            alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
-            self.present(alert, animated: true) {
-                actionButton.close()
-            }
-        }
+        self.fab = Floaty()
+        configureFab()
 
         let scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
 
@@ -66,7 +53,52 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
         scrollView.panGestureRecognizer.allowedTouchTypes = [0] // only finger
         scrollView.pinchGestureRecognizer?.allowedTouchTypes = [0]
 
-        self.view.addSubview(actionButton)
+        self.view.addSubview(fab)
+
+        let secondFab = Floaty()
+        secondFab.buttonImage = UIImage(named: "pen")
+
+
+        secondFab.addItem("", icon: UIImage(named: "erase")) { item in
+            self.sketchView.drawTool = .eraser
+            secondFab.buttonImage = UIImage(named: "erase")
+        }
+        secondFab.addItem("", icon: UIImage(named: "pen")) { item in
+            self.sketchView.drawTool = .pen
+            secondFab.buttonImage = UIImage(named: "pen")
+        }
+        secondFab.size = 64
+        secondFab.paddingX = sketchView.frame.width - 72
+        secondFab.friendlyTap = false
+        secondFab.itemButtonColor = UIColor(red: 73/255.0, green: 151/255.0, blue: 241/255.0, alpha: 1)
+        
+        self.view.addSubview(secondFab)
+    }
+
+    func configureFab() {
+        guard let fab = self.fab else { return }
+        // fab action items
+        fab.addItem("Clear", icon: UIImage(named: "clear")) { item in
+            let alert = UIAlertController(title: "Warning", message: "Are you sure you want to clear this page?", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Yes", style: .destructive) { handler in
+                self.sketchView.loadImage(image: UIImage())
+                self.eraseCachedImage(imageName: self.selectedDate)
+                self.calendarView.reloadData()
+            })
+            alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
+            self.present(alert, animated: true) {
+                fab.close()
+            }
+        }
+
+        fab.openAnimationType = .slideUp
+
+
+        // fab config
+        fab.openAnimationType = .slideUp
+        fab.buttonImage = UIImage(named: "fab-icon")
+        fab.rotationDegrees = 180
+        fab.size = 64
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -93,7 +125,7 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
 
     func restartTimer() {
         self.saveTimer?.invalidate()
-        self.saveTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { (Timer) in
+        self.saveTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: false) { (Timer) in
             guard let image = self.sketchView.image else { return }
             print("fired")
             self.saveImage(imageName: self.selectedDate, image: image)

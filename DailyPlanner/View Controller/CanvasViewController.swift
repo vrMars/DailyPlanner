@@ -8,6 +8,7 @@
 
 import UIKit
 import FSCalendar
+import Floaty
 import Sketch
 
 class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDelegate {
@@ -16,12 +17,28 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
     var sketchView: SketchView!
     var cachedImage: UIImage?
     var selectedDate: String!
-    var backgroundImage: UIImageView!
     var scale: CGFloat = 1.0
     var saveTimer: Timer?
+    var shouldSave: Bool = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        let actionButton = Floaty()
+        // fab action items
+        actionButton.addItem("Erase", icon: UIImage(named: "clear")) { item in
+
+            let alert = UIAlertController(title: "Warning", message: "Are you sure you want to clear this page?", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Yes", style: .destructive) { handler in
+                self.sketchView.loadImage(image: UIImage())
+                self.eraseCachedImage(imageName: self.selectedDate)
+                self.calendarView.reloadData()
+            })
+            alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
+            self.present(alert, animated: true) {
+                actionButton.close()
+            }
+        }
 
         let scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
 
@@ -49,11 +66,12 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
         scrollView.panGestureRecognizer.allowedTouchTypes = [0] // only finger
         scrollView.pinchGestureRecognizer?.allowedTouchTypes = [0]
 
+        self.view.addSubview(actionButton)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        guard let image = self.sketchView.image else { return }
+        guard let image = self.sketchView.image, shouldSave else { return }
         self.saveImage(imageName: self.selectedDate, image: image)
     }
 
@@ -69,6 +87,7 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
     func drawView(_ view: SketchView, didEndDrawUsingTool tool: AnyObject) {
         if tool as? NSObject != NSNull() {
             restartTimer()
+            shouldSave = true
         }
     }
 
@@ -102,14 +121,33 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
         }
 
         do {
+            print("write to ", fileURL.path)
             try data.write(to: fileURL)
         } catch let error {
             print("error saving file with error", error)
         }
     }
 
+    func eraseCachedImage(imageName: String) {
+        guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
 
+        let fileName = imageName
+        let fileURL = documentsDirectory.appendingPathComponent(fileName)
 
+        //Checks if file exists, removes it if so.
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            do {
+                print("remove at ", fileURL.path)
+                try FileManager.default.removeItem(atPath: fileURL.path)
+                print("Erased stored image")
+                self.shouldSave = false
+                self.saveTimer?.invalidate()
+            } catch let removeError {
+                print("couldn't remove file at path", removeError)
+            }
+
+        }
+    }
 
     @objc private func onPinch(_ gesture: UIPinchGestureRecognizer) {
         if let view = gesture.view {

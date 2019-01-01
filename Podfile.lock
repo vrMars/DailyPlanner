@@ -1,24 +1,28 @@
 PODS:
+  - Floaty (4.1.0)
   - FSCalendar (2.8.0)
   - Sketch (2.0)
   - SnapKit (4.2.0)
 
 DEPENDENCIES:
+  - Floaty (~> 4.1.0)
   - FSCalendar
   - Sketch
   - SnapKit (~> 4.0)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
+    - Floaty
     - FSCalendar
     - Sketch
     - SnapKit
 
 SPEC CHECKSUMS:
+  Floaty: 1a4e213f3512cf3045ef9cb0c1ff456226d1f66a
   FSCalendar: 3a5ed3636e2ba1b83ebebfcf0c2603105a6f5efe
   Sketch: c54b898799ba34cb282b57ff42b5d0a6071e855f
   SnapKit: fe8a619752f3f27075cc9a90244d75c6c3f27e2a
 
-PODFILE CHECKSUM: 99eb6b44c1b9a99e2986eaac07846fb29abbd076
+PODFILE CHECKSUM: f081c5e7606a2a3e8c07f5b1afa122db1cafdafd
 
 COCOAPODS: 1.5.3

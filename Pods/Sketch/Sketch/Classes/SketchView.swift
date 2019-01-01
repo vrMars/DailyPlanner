@@ -80,7 +80,7 @@ public class SketchView: UIView {
 
         if isUpdate {
             image = nil
-            (backgroundImage?.copy() as! UIImage).draw(in: self.bounds)
+            (backgroundImage?.copy() as? UIImage)?.draw(in: self.bounds)
 
             for obj in pathArray {
                 if let tool = obj as? SketchTool {

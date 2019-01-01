@@ -26,7 +26,7 @@ public class PenTool: UIBezierPath, SketchTool {
     override init() {
         path = UIBezierPath.init()
         lineColor = .black
-        lineAlpha = 0
+        lineAlpha = 1.0
         super.init()
         lineCapStyle = CGLineCap.round
     }
@@ -34,7 +34,7 @@ public class PenTool: UIBezierPath, SketchTool {
     init(path: UIBezierPath) {
         self.path = path
         lineColor = .black
-        lineAlpha = 0
+        lineAlpha = 1.0
         super.init()
         print(path.currentPoint)
         lineCapStyle = CGLineCap.round
@@ -43,7 +43,7 @@ public class PenTool: UIBezierPath, SketchTool {
     required init?(coder aDecoder: NSCoder) {
         self.path = aDecoder.decodeObject(of: UIBezierPath.self, forKey: "path") ?? UIBezierPath.init()
         self.lineColor = aDecoder.decodeObject(of: UIColor.self, forKey: "color") ?? .black
-        self.lineAlpha = aDecoder.decodeObject(forKey: "alpha") as? CGFloat ?? 69
+        self.lineAlpha = aDecoder.decodeObject(forKey: "alpha") as? CGFloat ?? 1.0
         super.init(coder: aDecoder)
     }
 
@@ -97,7 +97,8 @@ class EraserTool: PenTool {
         context.addPath(path.cgPath)
         context.setLineCap(.round)
         context.setLineWidth(lineWidth)
-        context.setBlendMode(.clear)
+        context.setAlpha(0.0)
+        context.setBlendMode(.lighten)
         context.strokePath()
         context.restoreGState()
     }

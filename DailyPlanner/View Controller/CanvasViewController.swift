@@ -81,7 +81,7 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
         fab.addItem("Clear", icon: UIImage(named: "clear")) { item in
             let alert = UIAlertController(title: "Warning", message: "Are you sure you want to clear this page?", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Yes", style: .destructive) { handler in
-                self.sketchView.loadImage(image: UIImage())
+                self.sketchView.clear()
                 self.eraseDrawnData()
                 self.calendarView.reloadData()
             })
@@ -129,17 +129,19 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
 
     func restartTimer() {
         self.saveTimer?.invalidate()
-        self.saveTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { (Timer) in
-            let pathArray = self.sketchView.pathArray
-            var paths: [UIBezierPath] = []
-            for path in pathArray {
-                guard let path = path as? PenTool else { return }
-                paths.append(path.path)
-            }
+        self.saveTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { (Timer) in
+            DispatchQueue.main.async {
+                let pathArray = self.sketchView.pathArray
+                var paths: [UIBezierPath] = []
+                for path in pathArray {
+                    guard let path = path as? PenTool else { return }
+                    paths.append(path.path)
+                }
 
-            print("encoded: ", paths)
-            self.saveDrawnData(path: paths)
-            self.calendarView.reloadData()
+                print("encoded: ", paths)
+                self.saveDrawnData(path: paths)
+                self.calendarView.reloadData()
+            }
         }
     }
 

@@ -144,13 +144,7 @@ public class SketchView: UIView {
         switch currentTool! {
         case is EraserTool:
             guard let currentTool = currentTool as? EraserTool else { return }
-            for pen in pathArray {
-                guard let pen = pen as? PenTool else { continue }
-                if isPoint(point: currentPoint!, withinDistance: 5, ofPath: pen.path.cgPath) {
-                    removalArray.add(pen)
-                    break
-                }
-            }
+            currentTool.setInitialPoint(currentPoint!)
         case is PenTool:
             guard let penTool = currentTool as? PenTool else { return }
             pathArray.add(penTool)
@@ -176,13 +170,16 @@ public class SketchView: UIView {
         currentPoint = touch.location(in: self)
 
         if let eraserTool = currentTool as? EraserTool {
+
+            let renderingBox = eraserTool.createBezierRenderingBox(previousPoint2!, widhPreviousPoint: previousPoint1!, withCurrentPoint: currentPoint!)
+
             for pen in pathArray {
                 guard let pen = pen as? PenTool else { continue }
-                if isPoint(point: currentPoint!, withinDistance: 20, ofPath: pen.path.cgPath) {
+                if doBoundingBoxesIntersect(a: pen.path.cgPath.boundingBox, b: eraserTool.path.cgPath.boundingBox) {
                     removalArray.add(pen)
-                    break
                 }
             }
+
             for each in removalArray {
                 if pathArray.count > pathArray.indexOfObjectIdentical(to: each) {
                     (pathArray.object(at: pathArray.indexOfObjectIdentical(to: each)) as! PenTool).lineColor = .red
@@ -200,19 +197,8 @@ public class SketchView: UIView {
         }
     }
 
-    final func isPoint(point: CGPoint, withinDistance distance: CGFloat, ofPath path: CGPath) -> Bool {
-
-        if let hitPath = CGPath( __byStroking: path,
-                                 transform: nil,
-                                 lineWidth: distance,
-                                 lineCap: CGLineCap.round,
-                                 lineJoin: CGLineJoin.miter,
-                                 miterLimit: 0) {
-
-            let isWithinDistance = hitPath.contains(point)
-            return isWithinDistance
-        }
-        return false
+    func doBoundingBoxesIntersect(a: CGRect, b: CGRect) -> Bool {
+        return !a.intersection(b).isEmpty
     }
 
     public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {

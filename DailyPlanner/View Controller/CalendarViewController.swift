@@ -78,11 +78,10 @@ extension CalendarViewController: FSCalendarDataSource, FSCalendarDelegate {
     }
 
     func calendar(_ calendar: FSCalendar, numberOfEventsFor date: Date) -> Int {
-
-        guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return 0 }
-        let fileURL = documentsDirectory.appendingPathComponent(date.description(with: .current))
-        if FileManager.default.fileExists(atPath: fileURL.path) {
-            return 1
+        if let data = UserDefaults.standard.object(forKey: date.description(with: .current)) as? Data {
+            if let paths = NSKeyedUnarchiver.unarchiveObject(with: data) as? [UIBezierPath], !paths.isEmpty {
+                return 1
+            }
         }
         return 0
     }

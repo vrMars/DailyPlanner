@@ -18,29 +18,39 @@ protocol SketchTool {
     func draw()
 }
 
-public enum PenType {
-    case normal
-    case blur
-    case neon
-}
-
-class PenTool: UIBezierPath, SketchTool {
-    var path: CGMutablePath
+public class PenTool: UIBezierPath, SketchTool {
+    var path: UIBezierPath
     var lineColor: UIColor
     var lineAlpha: CGFloat
-    var drawingPenType: PenType
 
     override init() {
-        path = CGMutablePath.init()
+        path = UIBezierPath.init()
         lineColor = .black
         lineAlpha = 0
-        drawingPenType = .normal
         super.init()
         lineCapStyle = CGLineCap.round
     }
 
+    init(path: UIBezierPath) {
+        self.path = path
+        lineColor = .black
+        lineAlpha = 0
+        super.init()
+        print(path.currentPoint)
+        lineCapStyle = CGLineCap.round
+    }
+
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        self.path = aDecoder.decodeObject(of: UIBezierPath.self, forKey: "path") ?? UIBezierPath.init()
+        self.lineColor = aDecoder.decodeObject(of: UIColor.self, forKey: "color") ?? .black
+        self.lineAlpha = aDecoder.decodeObject(forKey: "alpha") as? CGFloat ?? 69
+        super.init(coder: aDecoder)
+    }
+
+    public override func encode(with aCoder: NSCoder) {
+        aCoder.encode(self.path, forKey: "path")
+        aCoder.encode(self.lineColor, forKey: "color")
+        aCoder.encode(self.lineAlpha, forKey: "alpha")
     }
 
     func setInitialPoint(_ firstPoint: CGPoint) {}
@@ -50,13 +60,13 @@ class PenTool: UIBezierPath, SketchTool {
     func createBezierRenderingBox(_ previousPoint2: CGPoint, widhPreviousPoint previousPoint1: CGPoint, withCurrentPoint cpoint: CGPoint) -> CGRect {
         let mid1 = middlePoint(previousPoint1, previousPoint2: previousPoint2)
         let mid2 = middlePoint(cpoint, previousPoint2: previousPoint1)
-        let subpath = CGMutablePath.init()
+        let subpath = UIBezierPath.init()
 
         subpath.move(to: CGPoint(x: mid1.x, y: mid1.y))
-        subpath.addQuadCurve(to: CGPoint(x: mid2.x, y: mid2.y), control: CGPoint(x: previousPoint1.x, y: previousPoint1.y))
-        path.addPath(subpath)
+        subpath.addQuadCurve(to: CGPoint(x: mid2.x, y: mid2.y), controlPoint: CGPoint(x: previousPoint1.x, y: previousPoint1.y))
+        path.append(subpath)
         
-        var boundingBox: CGRect = subpath.boundingBox
+        var boundingBox: CGRect = subpath.cgPath.boundingBox
         boundingBox.origin.x -= lineWidth * 2.0
         boundingBox.origin.y -= lineWidth * 2.0
         boundingBox.size.width += lineWidth * 4.0
@@ -70,35 +80,13 @@ class PenTool: UIBezierPath, SketchTool {
     
     func draw() {
         let context: CGContext = UIGraphicsGetCurrentContext()!
-            switch drawingPenType {
-            case .normal:
-                context.addPath(path)
-                context.setLineCap(.round)
-                context.setLineWidth(lineWidth)
-                context.setStrokeColor(lineColor.cgColor)
-                context.setBlendMode(.normal)
-                context.setAlpha(lineAlpha)
-                context.strokePath()
-            case .blur:
-                context.addPath(path)
-                context.setLineCap(.round)
-                context.setLineWidth(lineWidth)
-                context.setStrokeColor(lineColor.cgColor)
-                context.setShadow(offset: CGSize(width: 0, height: 0), blur: lineWidth / 1.25, color: lineColor.cgColor)
-                context.setAlpha(lineAlpha)
-                context.strokePath()
-            case .neon:
-                let shadowColor = lineColor
-                let transparentShadowColor = shadowColor.withAlphaComponent(lineAlpha)
-
-                context.addPath(path)
-                context.setLineCap(.round)
-                context.setLineWidth(lineWidth)
-                context.setStrokeColor(UIColor.white.cgColor)
-                context.setShadow(offset: CGSize(width: 0, height: 0), blur: lineWidth / 1.25, color: transparentShadowColor.cgColor)
-                context.setBlendMode(.screen)
-                context.strokePath()
-            }
+        context.addPath(path.cgPath)
+        context.setLineCap(.round)
+        context.setLineWidth(10.0)
+        context.setStrokeColor(lineColor.cgColor)
+        context.setBlendMode(.normal)
+        context.setAlpha(1.0)
+        context.strokePath()
     }
 }
 
@@ -106,7 +94,7 @@ class EraserTool: PenTool {
     override func draw() {
         let context: CGContext = UIGraphicsGetCurrentContext()!
         context.saveGState()
-        context.addPath(path)
+        context.addPath(path.cgPath)
         context.setLineCap(.round)
         context.setLineWidth(lineWidth)
         context.setBlendMode(.clear)

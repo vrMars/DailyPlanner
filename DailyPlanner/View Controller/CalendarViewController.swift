@@ -97,7 +97,11 @@ extension CalendarViewController: FSCalendarDataSource, FSCalendarDelegate {
         self.canvasVC = canvasVC
         canvasVC.selectedDate = date.description(with: .current)
         // ** DECODER **
-        canvasVC.cachedImage = loadImageFromDiskWith(fileName: date.description(with: .current))
+        if let data = UserDefaults.standard.object(forKey: date.description(with: .current)) as? Data {
+            if let paths = NSKeyedUnarchiver.unarchiveObject(with: data) as? [UIBezierPath] {
+                canvasVC.paths = paths
+            }
+        }
         canvasVC.calendarView = calendar
         self.addChild(canvasVC)
         view.addSubview(canvasVC.view)
@@ -121,7 +125,12 @@ extension CalendarViewController: FSCalendarDataSource, FSCalendarDelegate {
         self.canvasVC = canvasVC
         canvasVC.selectedDate = calendarView.today?.description(with: .current)
         // ** DECODER **
-        canvasVC.cachedImage = loadImageFromDiskWith(fileName: (calendarView.today?.description(with: .current))!)
+        if let data = UserDefaults.standard.object(forKey: (calendarView.today?.description(with: .current))!) as? Data {
+            if let paths = NSKeyedUnarchiver.unarchiveObject(with: data) as? [UIBezierPath] {
+                canvasVC.paths = paths
+            }
+        }
+
         canvasVC.calendarView = calendarView
         self.addChild(canvasVC)
         view.addSubview(canvasVC.view)

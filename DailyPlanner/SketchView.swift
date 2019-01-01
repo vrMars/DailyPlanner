@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreGraphics
 
 public enum SketchToolType {
     case pen
@@ -36,11 +37,10 @@ public class SketchView: UIView {
     public var lineAlpha = CGFloat(1)
     public var stampImage: UIImage?
     public var drawTool: SketchToolType = .pen
-    public var drawingPenType: PenType = .normal
     public var sketchViewDelegate: SketchViewDelegate?
     public var paths: NSMutableArray = []
     private var currentTool: SketchTool?
-    private var pathArray: NSMutableArray = NSMutableArray() {
+    public var pathArray: NSMutableArray = NSMutableArray() {
         didSet {
             paths.add(pathArray.lastObject)
         }
@@ -84,7 +84,7 @@ public class SketchView: UIView {
             (backgroundImage?.copy() as? UIImage)?.draw(in: self.bounds)
 
             for obj in pathArray {
-                if let tool = obj as? SketchTool {
+                if let tool = obj as? PenTool {
                     tool.draw()
                 }
             }
@@ -146,18 +146,14 @@ public class SketchView: UIView {
             guard let currentTool = currentTool as? EraserTool else { return }
             for pen in pathArray {
                 guard let pen = pen as? PenTool else { continue }
-                for index in -20...20 {
-                    let index = CGFloat(index)
-                    if pen.path.contains(CGPoint(x: currentPoint!.x + index, y: currentPoint!.y + index)) {
-                        //removalArray.add(pen)
-                        break
-                    }
+                if isPoint(point: currentPoint!, withinDistance: 5, ofPath: pen.path.cgPath) {
+                    removalArray.add(pen)
+                    break
                 }
             }
         case is PenTool:
             guard let penTool = currentTool as? PenTool else { return }
             pathArray.add(penTool)
-            penTool.drawingPenType = drawingPenType
             penTool.setInitialPoint(currentPoint!)
         case is StampTool:
             guard let stampTool = currentTool as? StampTool else { return }
@@ -182,19 +178,12 @@ public class SketchView: UIView {
         if let eraserTool = currentTool as? EraserTool {
             for pen in pathArray {
                 guard let pen = pen as? PenTool else { continue }
-                for index in -20...20 {
-                    let index = CGFloat(index)
-                    if pen.path.contains(CGPoint(x: currentPoint!.x + index, y: currentPoint!.y + index)) {
-                        removalArray.add(pen)
-                        break
-                    }
+                if isPoint(point: currentPoint!, withinDistance: 20, ofPath: pen.path.cgPath) {
+                    removalArray.add(pen)
+                    break
                 }
             }
-            print("im out")
             for each in removalArray {
-                if removalArray.count > 2 {
-                    print(pathArray.indexOfObjectIdentical(to: each))
-                }
                 if pathArray.count > pathArray.indexOfObjectIdentical(to: each) {
                     (pathArray.object(at: pathArray.indexOfObjectIdentical(to: each)) as! PenTool).lineColor = .red
                 }
@@ -209,6 +198,21 @@ public class SketchView: UIView {
             currentTool?.moveFromPoint(previousPoint1!, toPoint: currentPoint!)
             setNeedsDisplay()
         }
+    }
+
+    final func isPoint(point: CGPoint, withinDistance distance: CGFloat, ofPath path: CGPath) -> Bool {
+
+        if let hitPath = CGPath( __byStroking: path,
+                                 transform: nil,
+                                 lineWidth: distance,
+                                 lineCap: CGLineCap.round,
+                                 lineJoin: CGLineJoin.miter,
+                                 miterLimit: 0) {
+
+            let isWithinDistance = hitPath.contains(point)
+            return isWithinDistance
+        }
+        return false
     }
 
     public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -259,6 +263,18 @@ public class SketchView: UIView {
         updateCacheImage(true)
 
         setNeedsDisplay()
+    }
+
+    public func loadPaths(bezPaths: [UIBezierPath]){
+        //current tool?
+        currentTool?.lineWidth = 10
+        for each in bezPaths {
+            currentTool = PenTool(path: each)
+            pathArray.add(currentTool)
+        }
+        updateCacheImage(true)
+        setNeedsDisplay()
+        bufferArray.removeAllObjects()
     }
 
     public func undo() {

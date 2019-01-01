@@ -15,7 +15,7 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
     var fab: Floaty!
     var calendarView: FSCalendar!
     var sketchView: SketchView!
-    var cachedImage: UIImage?
+    var paths: [UIBezierPath]?
     var selectedDate: String!
     var scale: CGFloat = 1.0
     var saveTimer: Timer?
@@ -35,8 +35,8 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
         let sketchView = SketchView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height + 300))
         self.sketchView = sketchView
 
-        if self.cachedImage != nil {
-            sketchView.loadImage(image: self.cachedImage!)
+        if self.paths != nil {
+            sketchView.loadPaths(bezPaths: paths!)
         }
 
         sketchView.sketchViewDelegate = self
@@ -82,7 +82,7 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
             let alert = UIAlertController(title: "Warning", message: "Are you sure you want to clear this page?", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Yes", style: .destructive) { handler in
                 self.sketchView.loadImage(image: UIImage())
-                self.eraseCachedImage(imageName: self.selectedDate)
+                self.eraseDrawnData()
                 self.calendarView.reloadData()
             })
             alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
@@ -103,8 +103,12 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        guard let image = self.sketchView.image, shouldSave else { return }
-        self.saveImage(imageName: self.selectedDate, image: image)
+        guard let penPaths = self.sketchView.pathArray as? [PenTool], shouldSave else { return }
+        var resArray: [UIBezierPath] = []
+        for path in penPaths {
+            resArray.append(path.path)
+        }
+        self.saveDrawnData(path: resArray)
     }
 
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
@@ -125,60 +129,28 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
 
     func restartTimer() {
         self.saveTimer?.invalidate()
-        self.saveTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: false) { (Timer) in
-            guard let image = self.sketchView.image else { return }
-            print("fired")
-            self.saveImage(imageName: self.selectedDate, image: image)
+        self.saveTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { (Timer) in
+            let pathArray = self.sketchView.pathArray
+            var paths: [UIBezierPath] = []
+            for path in pathArray {
+                guard let path = path as? PenTool else { return }
+                paths.append(path.path)
+            }
+
+            print("encoded: ", paths)
+            self.saveDrawnData(path: paths)
             self.calendarView.reloadData()
         }
     }
 
-    func saveImage(imageName: String, image: UIImage) {
-        
-        guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
-
-        let fileName = imageName
-        let fileURL = documentsDirectory.appendingPathComponent(fileName)
-        guard let data = image.pngData() else { return }
-
-        //Checks if file exists, removes it if so.
-        if FileManager.default.fileExists(atPath: fileURL.path) {
-            do {
-                try FileManager.default.removeItem(atPath: fileURL.path)
-                print("Removed old image")
-            } catch let removeError {
-                print("couldn't remove file at path", removeError)
-            }
-
-        }
-
-        do {
-            print("write to ", fileURL.path)
-            try data.write(to: fileURL)
-        } catch let error {
-            print("error saving file with error", error)
-        }
+    func saveDrawnData(path: [UIBezierPath]) {
+        // encode path to user defaults
+        let encodedData = NSKeyedArchiver.archivedData(withRootObject: path)
+        UserDefaults.standard.set(encodedData, forKey: self.selectedDate)
     }
 
-    func eraseCachedImage(imageName: String) {
-        guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
-
-        let fileName = imageName
-        let fileURL = documentsDirectory.appendingPathComponent(fileName)
-
-        //Checks if file exists, removes it if so.
-        if FileManager.default.fileExists(atPath: fileURL.path) {
-            do {
-                print("remove at ", fileURL.path)
-                try FileManager.default.removeItem(atPath: fileURL.path)
-                print("Erased stored image")
-                self.shouldSave = false
-                self.saveTimer?.invalidate()
-            } catch let removeError {
-                print("couldn't remove file at path", removeError)
-            }
-
-        }
+    func eraseDrawnData() {
+        UserDefaults.standard.removeObject(forKey: self.selectedDate)
     }
 
     @objc private func onPinch(_ gesture: UIPinchGestureRecognizer) {

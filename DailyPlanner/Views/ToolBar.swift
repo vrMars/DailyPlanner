@@ -13,6 +13,7 @@ import SnapKit
 protocol ToolBarDelegate {
     func toggleCalendar()
     func selectPen()
+    func selectFont()
     func selectEraser()
     func selectClear()
 }
@@ -29,11 +30,12 @@ class ToolBar: UIView {
 
     var eraserTool: UIButton!
 
+    var fontSizeTool: UIButton!
+
     var clearTool: UIButton!
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-
 
         let viewShadow = UIView(frame: CGRect(x: 0, y: 0, width: self.frame.width, height: self.frame.height))
         viewShadow.center = self.center
@@ -59,6 +61,11 @@ class ToolBar: UIView {
         penTool.addTarget(self, action: #selector(penSelected(_:)), for: .touchUpInside)
         container.addSubview(penTool)
 
+        fontSizeTool = UIButton(type: UIButton.ButtonType.custom)
+        fontSizeTool.setImage(UIImage(named: "font"), for: UIControl.State.normal)
+        fontSizeTool.addTarget(self, action: #selector(fontSelected(_:)), for: .touchUpInside)
+        container.addSubview(fontSizeTool)
+
         eraserTool = UIButton(type: UIButton.ButtonType.custom)
         eraserTool.setImage(UIImage(named: "erase"), for: UIControl.State.normal)
         eraserTool.addTarget(self, action: #selector(eraserSelected(_:)), for: .touchUpInside)
@@ -80,13 +87,19 @@ class ToolBar: UIView {
         }
 
         penTool.snp.makeConstraints { make in
-            make.centerX.equalToSuperview().offset(-100)
+            make.centerX.equalToSuperview().offset(0)
+            make.top.equalTo(toggleCalendarButton.snp.top)
+            make.bottom.equalTo(toggleCalendarButton.snp.bottom)
+        }
+
+        fontSizeTool.snp.makeConstraints { make in
+            make.centerX.equalToSuperview().offset(-200)
             make.top.equalTo(toggleCalendarButton.snp.top)
             make.bottom.equalTo(toggleCalendarButton.snp.bottom)
         }
 
         eraserTool.snp.makeConstraints { make in
-            make.centerX.equalToSuperview().offset(100)
+            make.centerX.equalToSuperview().offset(200)
             make.top.equalTo(toggleCalendarButton.snp.top)
             make.bottom.equalTo(toggleCalendarButton.snp.bottom)
         }
@@ -98,9 +111,10 @@ class ToolBar: UIView {
         }
     }
 
-    private func deselectAll() {
+    public func deselectAll() {
         penTool.setImage(UIImage(named: "pen"), for: UIControl.State.normal)
         eraserTool.setImage(UIImage(named: "erase"), for: UIControl.State.normal)
+        fontSizeTool.setImage(UIImage(named: "font"), for: UIControl.State.normal)
     }
 
     // button handlers
@@ -114,6 +128,11 @@ class ToolBar: UIView {
         deselectAll()
         penTool.setImage(UIImage(named: "pen-selected"), for: UIControl.State.normal)
         // update selected image here
+    }
+
+    @objc private func fontSelected(_ sender: UIButton) {
+        self.delegate.selectFont()
+        fontSizeTool.setImage(UIImage(named: "font-selected"), for: UIControl.State.normal)
     }
 
     @objc private func eraserSelected(_ sender: UIButton) {
@@ -131,6 +150,10 @@ class ToolBar: UIView {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+}
+
+extension ToolBar: UIPopoverPresentationControllerDelegate {
+
 }
 
 extension UIImage {

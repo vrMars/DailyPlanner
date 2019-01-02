@@ -98,6 +98,7 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
 
     func saveDrawnData(path: [UIBezierPath]) {
         // encode path to user defaults
+        // TODO: SAVE FONTS ALONSIDE PATH
         let encodedData = NSKeyedArchiver.archivedData(withRootObject: path)
         UserDefaults.standard.set(encodedData, forKey: self.selectedDate)
     }

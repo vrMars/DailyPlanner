@@ -82,7 +82,7 @@ public class PenTool: UIBezierPath, SketchTool {
         let context: CGContext = UIGraphicsGetCurrentContext()!
         context.addPath(path.cgPath)
         context.setLineCap(.round)
-        context.setLineWidth(6.0)
+        context.setLineWidth(lineWidth)
         context.setStrokeColor(lineColor.cgColor)
         context.setBlendMode(.normal)
         context.setAlpha(1.0)

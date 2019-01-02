@@ -95,6 +95,19 @@ extension CalendarViewController: ToolBarDelegate {
         self.canvasVC?.sketchView.drawTool = .pen
     }
 
+    func selectFont() {
+        let sliderVC = SliderPopOverViewController()
+        sliderVC.modalPresentationStyle = .popover
+        sliderVC.delegate = self
+        let popOverVC = sliderVC.popoverPresentationController
+        popOverVC?.delegate = self
+        popOverVC?.sourceView = self.toolBar.fontSizeTool
+        popOverVC?.sourceRect = CGRect(x: self.toolBar.fontSizeTool.bounds.midX, y: self.toolBar.fontSizeTool.bounds.maxY, width: 0, height: 0)
+        popOverVC?.permittedArrowDirections = .up
+        sliderVC.preferredContentSize = CGSize(width: 250, height: 100)
+        self.present(sliderVC, animated: true)
+    }
+
     func selectEraser() {
         self.canvasVC?.sketchView.drawTool = .eraser
     }
@@ -110,6 +123,12 @@ extension CalendarViewController: ToolBarDelegate {
         self.present(alert, animated: true) {
             print("cleared")
         }
+    }
+}
+
+extension CalendarViewController: UIPopoverPresentationControllerDelegate, SliderPopOverDelegate {
+    func setFont(font: CGFloat) {
+        self.canvasVC?.sketchView.lineWidth = font
     }
 }
 

@@ -15,6 +15,7 @@
 		58A0DB95218F964200545985 /* StrokeCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A0DB8F218F964100545985 /* StrokeCollection.swift */; };
 		58A0DB97218F964200545985 /* CGMathExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A0DB91218F964200545985 /* CGMathExtensions.swift */; };
 		58A0DB98218F964200545985 /* StrokeGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A0DB92218F964200545985 /* StrokeGestureRecognizer.swift */; };
+		58E8E5BA21DC705600E765EA /* SliderPopOverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E8E5B921DC705600E765EA /* SliderPopOverViewController.swift */; };
 		58F549AD218F82C50011104A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F549AC218F82C50011104A /* AppDelegate.swift */; };
 		58F549AF218F82C50011104A /* CalendarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F549AE218F82C50011104A /* CalendarViewController.swift */; };
 		58F549B4218F82C70011104A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58F549B3218F82C70011104A /* Assets.xcassets */; };
@@ -30,6 +31,7 @@
 		58A0DB8F218F964100545985 /* StrokeCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StrokeCollection.swift; sourceTree = "<group>"; };
 		58A0DB91218F964200545985 /* CGMathExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGMathExtensions.swift; sourceTree = "<group>"; };
 		58A0DB92218F964200545985 /* StrokeGestureRecognizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StrokeGestureRecognizer.swift; sourceTree = "<group>"; };
+		58E8E5B921DC705600E765EA /* SliderPopOverViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderPopOverViewController.swift; sourceTree = "<group>"; };
 		58F549A9218F82C50011104A /* DailyPlanner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DailyPlanner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		58F549AC218F82C50011104A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Views/AppDelegate.swift; sourceTree = "<group>"; };
 		58F549AE218F82C50011104A /* CalendarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewController.swift; sourceTree = "<group>"; };
@@ -80,6 +82,7 @@
 			children = (
 				58F549AE218F82C50011104A /* CalendarViewController.swift */,
 				584E5A8A21911F3400788F76 /* CanvasViewController.swift */,
+				58E8E5B921DC705600E765EA /* SliderPopOverViewController.swift */,
 			);
 			path = "View Controller";
 			sourceTree = "<group>";
@@ -252,6 +255,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58E8E5BA21DC705600E765EA /* SliderPopOverViewController.swift in Sources */,
 				580678D421DB1C7300D1443A /* SketchView.swift in Sources */,
 				58F549AF218F82C50011104A /* CalendarViewController.swift in Sources */,
 				58A0DB95218F964200545985 /* StrokeCollection.swift in Sources */,

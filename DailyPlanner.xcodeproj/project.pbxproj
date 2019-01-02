@@ -10,6 +10,7 @@
 		580678D421DB1C7300D1443A /* SketchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580678D221DB1C7300D1443A /* SketchView.swift */; };
 		580678D521DB1C7300D1443A /* SketchTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580678D321DB1C7300D1443A /* SketchTool.swift */; };
 		584E5A8B21911F3400788F76 /* CanvasViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584E5A8A21911F3400788F76 /* CanvasViewController.swift */; };
+		58789F9321DC3AC1004F13EB /* ToolBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58789F9221DC3AC1004F13EB /* ToolBar.swift */; };
 		58A0DB94218F964200545985 /* CGDrawingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A0DB8E218F964100545985 /* CGDrawingEngine.swift */; };
 		58A0DB95218F964200545985 /* StrokeCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A0DB8F218F964100545985 /* StrokeCollection.swift */; };
 		58A0DB97218F964200545985 /* CGMathExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A0DB91218F964200545985 /* CGMathExtensions.swift */; };
@@ -24,6 +25,7 @@
 		580678D221DB1C7300D1443A /* SketchView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SketchView.swift; sourceTree = "<group>"; };
 		580678D321DB1C7300D1443A /* SketchTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SketchTool.swift; sourceTree = "<group>"; };
 		584E5A8A21911F3400788F76 /* CanvasViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasViewController.swift; sourceTree = "<group>"; };
+		58789F9221DC3AC1004F13EB /* ToolBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolBar.swift; sourceTree = "<group>"; };
 		58A0DB8E218F964100545985 /* CGDrawingEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGDrawingEngine.swift; sourceTree = "<group>"; };
 		58A0DB8F218F964100545985 /* StrokeCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StrokeCollection.swift; sourceTree = "<group>"; };
 		58A0DB91218F964200545985 /* CGMathExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGMathExtensions.swift; sourceTree = "<group>"; };
@@ -68,6 +70,7 @@
 		58A0DB99218F9B3600545985 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				58789F9221DC3AC1004F13EB /* ToolBar.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -256,6 +259,7 @@
 				58F549AD218F82C50011104A /* AppDelegate.swift in Sources */,
 				58A0DB97218F964200545985 /* CGMathExtensions.swift in Sources */,
 				58A0DB94218F964200545985 /* CGDrawingEngine.swift in Sources */,
+				58789F9321DC3AC1004F13EB /* ToolBar.swift in Sources */,
 				584E5A8B21911F3400788F76 /* CanvasViewController.swift in Sources */,
 				58A0DB98218F964200545985 /* StrokeGestureRecognizer.swift in Sources */,
 			);

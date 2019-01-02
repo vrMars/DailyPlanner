@@ -13,6 +13,9 @@ import SnapKit
 class CalendarViewController: UIViewController {
 
     var calendarView: FSCalendar!
+    var isCalendarVisible: Bool = true
+    var oldCalendarHeight: CGFloat = 0
+    var toolBar: ToolBar!
     var canvasVC: CanvasViewController?
     
     override func viewDidLoad() {
@@ -23,8 +26,13 @@ class CalendarViewController: UIViewController {
         calendarView.delegate = self
         calendarView.select(calendarView.today)
 
-        view.backgroundColor = UIColor.white
+        let toolBar = ToolBar(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 76))
+        self.toolBar = toolBar
+        toolBar.delegate = self
+        
+        view.backgroundColor = UIColor(red: 0.9569, green: 0.9569, blue: 0.9569, alpha: 1.0)
         view.addSubview(calendarView)
+        view.addSubview(toolBar)
 
         selectToday()
         configureCalendarApperance(calendarView)
@@ -64,12 +72,69 @@ private func configureCalendarApperance(_ calendarView: FSCalendar) {
 
 }
 
+extension CalendarViewController: ToolBarDelegate {
+
+    func toggleCalendar() {
+        isCalendarVisible = !isCalendarVisible
+        UIView.animate(withDuration: 0.5, animations: {
+            if (self.isCalendarVisible) {
+                self.calendarView.isHidden = false
+            }
+            self.calendarView.snp.remakeConstraints { (make) in
+                make.height.equalTo(self.isCalendarVisible ? self.oldCalendarHeight : 10)
+                make.top.left.right.equalToSuperview()
+            }
+            self.calendarView.superview?.layoutIfNeeded()
+        }, completion: { (completed) in
+                self.calendarView.isHidden = !self.isCalendarVisible
+        })
+
+    }
+
+    func selectPen() {
+        self.canvasVC?.sketchView.drawTool = .pen
+    }
+
+    func selectEraser() {
+        self.canvasVC?.sketchView.drawTool = .eraser
+    }
+
+    func selectClear() {
+        let alert = UIAlertController(title: "Warning", message: "Are you sure you want to clear this page?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Yes", style: .destructive) { handler in
+            self.canvasVC?.sketchView.clear()
+            self.canvasVC?.eraseDrawnData()
+            self.calendarView.reloadData()
+        })
+        alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
+        self.present(alert, animated: true) {
+            print("cleared")
+        }
+    }
+}
+
 extension CalendarViewController: FSCalendarDataSource, FSCalendarDelegate {
     func calendar(_ calendar: FSCalendar, boundingRectWillChange bounds: CGRect, animated: Bool) {
         self.calendarView.snp.updateConstraints { (make) in
+            self.oldCalendarHeight = bounds.height
             make.height.equalTo(bounds.height)
             make.top.left.right.equalToSuperview()
         }
+        if bounds.height > 500 {
+            self.toolBar.snp.updateConstraints { make in
+                make.height.equalTo(0)
+                make.top.equalTo(calendarView.snp.bottom)
+                make.left.right.equalToSuperview()
+            }
+        }
+        else {
+            self.toolBar.snp.updateConstraints { make in
+                make.height.equalTo(76)
+                make.top.equalTo(calendarView.snp.bottom)
+                make.left.right.equalToSuperview()
+            }
+        }
+
     }
 
     // FSCalendarDataSource
@@ -104,8 +169,9 @@ extension CalendarViewController: FSCalendarDataSource, FSCalendarDelegate {
         canvasVC.calendarView = calendar
         self.addChild(canvasVC)
         view.addSubview(canvasVC.view)
+        view.bringSubviewToFront(self.toolBar)
         canvasVC.view.snp.makeConstraints { make in
-            make.top.equalTo(calendarView.snp.bottom)
+            make.top.equalTo(toolBar.snp.bottom)
             make.bottom.equalToSuperview()
             make.left.right.equalToSuperview()
         }
@@ -133,8 +199,9 @@ extension CalendarViewController: FSCalendarDataSource, FSCalendarDelegate {
         canvasVC.calendarView = calendarView
         self.addChild(canvasVC)
         view.addSubview(canvasVC.view)
+        view.bringSubviewToFront(self.toolBar)
         canvasVC.view.snp.makeConstraints { make in
-            make.top.equalTo(calendarView.snp.bottom)
+            make.top.equalTo(toolBar.snp.bottom)
             make.bottom.equalToSuperview()
             make.left.right.equalToSuperview()
         }

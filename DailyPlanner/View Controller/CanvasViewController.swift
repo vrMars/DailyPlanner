@@ -12,7 +12,6 @@ import Floaty
 
 class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDelegate {
     var containerView: UIView!
-    var fab: Floaty!
     var calendarView: FSCalendar!
     var sketchView: SketchView!
     var paths: [UIBezierPath]?
@@ -24,81 +23,33 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.fab = Floaty()
-        configureFab()
-
         let scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
 
         let containerView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height + 300))
         self.containerView = containerView
 
-        let sketchView = SketchView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height + 300))
+        let sketchView = SketchView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height + 150))
         self.sketchView = sketchView
+        sketchView.backgroundColor = UIColor(patternImage: UIImage(named: "lined-paper")!)
+
 
         if self.paths != nil {
             sketchView.loadPaths(bezPaths: paths!)
         }
 
         sketchView.sketchViewDelegate = self
-
         view.addSubview(scrollView)
 
         containerView.addSubview(sketchView)
         scrollView.addSubview(containerView)
+        scrollView.backgroundColor = .lightGray
         scrollView.delegate = self
         scrollView.minimumZoomScale = 1.0
         scrollView.maximumZoomScale = 2.5
-        scrollView.contentSize = CGSize(width: sketchView.frame.width, height: sketchView.frame.height)
+        scrollView.contentSize = CGSize(width: sketchView.frame.width, height: sketchView.frame.height + 600)
 
         scrollView.panGestureRecognizer.allowedTouchTypes = [0] // only finger
         scrollView.pinchGestureRecognizer?.allowedTouchTypes = [0]
-
-        self.view.addSubview(fab)
-
-        let secondFab = Floaty()
-        secondFab.buttonImage = UIImage(named: "pen")
-
-
-        secondFab.addItem("", icon: UIImage(named: "erase")) { item in
-            self.sketchView.drawTool = .eraser
-            secondFab.buttonImage = UIImage(named: "erase")
-        }
-        secondFab.addItem("", icon: UIImage(named: "pen")) { item in
-            self.sketchView.drawTool = .pen
-            secondFab.buttonImage = UIImage(named: "pen")
-        }
-        secondFab.size = 64
-        secondFab.paddingX = sketchView.frame.width - 72
-        secondFab.friendlyTap = false
-        secondFab.itemButtonColor = UIColor(red: 73/255.0, green: 151/255.0, blue: 241/255.0, alpha: 1)
-        
-        self.view.addSubview(secondFab)
-    }
-
-    func configureFab() {
-        guard let fab = self.fab else { return }
-        // fab action items
-        fab.addItem("Clear", icon: UIImage(named: "clear")) { item in
-            let alert = UIAlertController(title: "Warning", message: "Are you sure you want to clear this page?", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Yes", style: .destructive) { handler in
-                self.sketchView.clear()
-                self.eraseDrawnData()
-                self.calendarView.reloadData()
-            })
-            alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
-            self.present(alert, animated: true) {
-                fab.close()
-            }
-        }
-
-        fab.openAnimationType = .slideUp
-
-
-        // fab config
-        fab.openAnimationType = .slideUp
-        fab.buttonImage = UIImage(named: "fab-icon")
-        fab.rotationDegrees = 180
-        fab.size = 64
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -112,7 +63,7 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
     }
 
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return containerView
+        return sketchView
     }
 
     func drawView(_ view: SketchView, willBeginDrawUsingTool tool: AnyObject) {
@@ -151,7 +102,7 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
         UserDefaults.standard.set(encodedData, forKey: self.selectedDate)
     }
 
-    func eraseDrawnData() {
+    public func eraseDrawnData() {
         UserDefaults.standard.removeObject(forKey: self.selectedDate)
     }
 

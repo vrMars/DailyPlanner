@@ -97,8 +97,8 @@ class EraserTool: PenTool {
         context.addPath(path.cgPath)
         context.setLineCap(.round)
         context.setLineWidth(lineWidth)
-        context.setAlpha(0.0)
-        context.setBlendMode(.lighten)
+        context.setAlpha(1.0)
+        context.setBlendMode(.clear)
         context.strokePath()
         context.restoreGState()
     }

@@ -1,11 +1,3 @@
-//
-//  SketchToolType.swift
-//  Sketch
-//
-//  Created by daihase on 04/06/2018.
-//  Copyright (c) 2018 daihase. All rights reserved.
-//
-
 import UIKit
 import CoreGraphics
 
@@ -170,8 +162,8 @@ public class SketchView: UIView {
         currentPoint = touch.location(in: self)
 
         if let eraserTool = currentTool as? EraserTool {
-
-            let renderingBox = eraserTool.createBezierRenderingBox(previousPoint2!, widhPreviousPoint: previousPoint1!, withCurrentPoint: currentPoint!)
+            eraserTool.lineColor = .clear
+            let _ = eraserTool.createBezierRenderingBox(previousPoint2!, widhPreviousPoint: previousPoint1!, withCurrentPoint: currentPoint!)
 
             for pen in pathArray {
                 guard let pen = pen as? PenTool else { continue }

@@ -1,11 +1,3 @@
-//
-//  SketchTool.swift
-//  Sketch
-//
-//  Created by daihase on 04/06/2018.
-//  Copyright (c) 2018 daihase. All rights reserved.
-//
-
 import UIKit
 
 protocol SketchTool {
@@ -36,13 +28,12 @@ public class PenTool: UIBezierPath, SketchTool {
         lineColor = .black
         lineAlpha = 1.0
         super.init()
-        print(path.currentPoint)
         lineCapStyle = CGLineCap.round
     }
 
     required init?(coder aDecoder: NSCoder) {
         self.path = aDecoder.decodeObject(of: UIBezierPath.self, forKey: "path") ?? UIBezierPath.init()
-        self.lineColor = aDecoder.decodeObject(of: UIColor.self, forKey: "color") ?? .black
+        self.lineColor = aDecoder.decodeObject(of: UIColor.self, forKey: "color") ?? .green
         self.lineAlpha = aDecoder.decodeObject(forKey: "alpha") as? CGFloat ?? 1.0
         super.init(coder: aDecoder)
     }
@@ -97,8 +88,9 @@ class EraserTool: PenTool {
         context.addPath(path.cgPath)
         context.setLineCap(.round)
         context.setLineWidth(lineWidth)
-        context.setAlpha(1.0)
-        context.setBlendMode(.clear)
+        context.setStrokeColor(UIColor.lightGray.cgColor)
+        context.setAlpha(0.5)
+        context.setBlendMode(.normal)
         context.strokePath()
         context.restoreGState()
     }

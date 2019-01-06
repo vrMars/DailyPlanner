@@ -88,7 +88,6 @@ class CanvasViewController: UIViewController, SketchViewDelegate, UIScrollViewDe
                     guard let path = path as? PenTool else { return }
                     paths.append(path.path)
                 }
-
                 print("encoded: ", paths)
                 self.saveDrawnData(path: paths)
                 self.calendarView.reloadData()

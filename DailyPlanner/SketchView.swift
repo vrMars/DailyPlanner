@@ -174,7 +174,7 @@ public class SketchView: UIView {
 
             for each in removalArray {
                 if pathArray.count > pathArray.indexOfObjectIdentical(to: each) {
-                    (pathArray.object(at: pathArray.indexOfObjectIdentical(to: each)) as! PenTool).lineColor = .red
+                    (pathArray.object(at: pathArray.indexOfObjectIdentical(to: each)) as! PenTool).lineColor = UIColor(red: 256/256, green: 0, blue: 0, alpha: 0.5)
                 }
             }
             updateCacheImage(true)

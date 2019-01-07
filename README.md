@@ -4,10 +4,13 @@
 * Monthly calendar view 
 * Ability to draw and save daily notes
 * Indicator in the calendar view that lets you know that you have items journaled for that day
+* ToolBar to choose between Pen/Eraser/etc.
+* Temporary background 
 
 ## Features in the pipeline:
 * Custom pages / book styles 
-* Various pen styles + colours / eraser
-* Handwriting-to-text
-* Ability to search handwriting
+* Colour Selection
+* Dynamically generated grid lines
+* Ability to search handwriting / handwriting-to-text
 * Integration with Apple services (calendar, reminders, sharing, etc.)
+* PDF / Export options

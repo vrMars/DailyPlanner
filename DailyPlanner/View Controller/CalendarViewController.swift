@@ -17,6 +17,7 @@ class CalendarViewController: UIViewController {
     var oldCalendarHeight: CGFloat = 0
     var toolBar: ToolBar!
     var canvasVC: CanvasViewController?
+    var currentTool: SketchToolType!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,7 +74,6 @@ private func configureCalendarApperance(_ calendarView: FSCalendar) {
 }
 
 extension CalendarViewController: ToolBarDelegate {
-
     func toggleCalendar() {
         isCalendarVisible = !isCalendarVisible
         UIView.animate(withDuration: 0.5, animations: {
@@ -171,35 +171,14 @@ extension CalendarViewController: FSCalendarDataSource, FSCalendarDelegate {
     }
 
     func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
-        if self.canvasVC != nil {
-            self.canvasVC?.removeFromParent()
-            self.canvasVC?.view.removeFromSuperview()
-            self.canvasVC = nil
-        }
-        let canvasVC = CanvasViewController()
-        self.canvasVC = canvasVC
-        canvasVC.selectedDate = date.description(with: .current)
-        // ** DECODER **
-        if let data = UserDefaults.standard.object(forKey: date.description(with: .current)) as? Data {
-            if let paths = NSKeyedUnarchiver.unarchiveObject(with: data) as? [UIBezierPath] {
-                canvasVC.paths = paths
-            }
-        }
-        canvasVC.calendarView = calendar
-        self.addChild(canvasVC)
-        view.addSubview(canvasVC.view)
-        view.bringSubviewToFront(self.toolBar)
-        canvasVC.view.snp.makeConstraints { make in
-            make.top.equalTo(toolBar.snp.bottom)
-            make.bottom.equalToSuperview()
-            make.left.right.equalToSuperview()
-        }
-        canvasVC.didMove(toParent: self)
-
-        calendarView.setScope(FSCalendarScope.week, animated: true)
+        handleSelection(date.description(with: .current))
     }
 
     func selectToday() {
+        handleSelection((calendarView.today?.description(with: .current))!)
+    }
+
+    private func handleSelection(_ date: String) {
         if self.canvasVC != nil {
             self.canvasVC?.removeFromParent()
             self.canvasVC?.view.removeFromSuperview()
@@ -207,14 +186,13 @@ extension CalendarViewController: FSCalendarDataSource, FSCalendarDelegate {
         }
         let canvasVC = CanvasViewController()
         self.canvasVC = canvasVC
-        canvasVC.selectedDate = calendarView.today?.description(with: .current)
+        canvasVC.selectedDate = date
         // ** DECODER **
-        if let data = UserDefaults.standard.object(forKey: (calendarView.today?.description(with: .current))!) as? Data {
+        if let data = UserDefaults.standard.object(forKey: date) as? Data {
             if let paths = NSKeyedUnarchiver.unarchiveObject(with: data) as? [UIBezierPath] {
                 canvasVC.paths = paths
             }
         }
-
         canvasVC.calendarView = calendarView
         self.addChild(canvasVC)
         view.addSubview(canvasVC.view)
@@ -226,6 +204,9 @@ extension CalendarViewController: FSCalendarDataSource, FSCalendarDelegate {
         }
         canvasVC.didMove(toParent: self)
 
+        //set default starting tool
+        toolBar.currentlySelectedTool = .pen
+        setFont(font: (UserDefaults.standard.object(forKey: "fontSize") as! CGFloat) * 10)
         calendarView.setScope(FSCalendarScope.week, animated: true)
     }
 

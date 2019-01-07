@@ -162,7 +162,6 @@ public class SketchView: UIView {
         currentPoint = touch.location(in: self)
 
         if let eraserTool = currentTool as? EraserTool {
-            eraserTool.lineColor = .clear
             let _ = eraserTool.createBezierRenderingBox(previousPoint2!, widhPreviousPoint: previousPoint1!, withCurrentPoint: currentPoint!)
 
             for pen in pathArray {
@@ -177,6 +176,8 @@ public class SketchView: UIView {
                     (pathArray.object(at: pathArray.indexOfObjectIdentical(to: each)) as! PenTool).lineColor = UIColor(red: 256/256, green: 0, blue: 0, alpha: 0.5)
                 }
             }
+
+            removalArray.add(eraserTool)
             updateCacheImage(true)
             setNeedsDisplay()
         } else if let penTool = currentTool as? PenTool {

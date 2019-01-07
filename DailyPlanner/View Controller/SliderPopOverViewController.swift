@@ -21,6 +21,7 @@ class SliderPopOverViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         slider = UISlider(frame: CGRect.zero)
+        slider.minimumValue = 0.05
         slider.value = UserDefaults.standard.float(forKey: "fontSize")
         slider.isContinuous = false
         slider.addTarget(self, action: #selector(handleSlider(_:)), for: UIControl.Event.valueChanged)
@@ -39,6 +40,7 @@ class SliderPopOverViewController: UIViewController {
 
     @objc func handleSlider(_ sender: UISlider){
         UserDefaults.standard.set(sender.value, forKey: "fontSize")
+        print(sender.value)
         delegate.setFont(font: CGFloat(sender.value * 10))
     }
 }

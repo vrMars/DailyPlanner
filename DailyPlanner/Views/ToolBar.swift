@@ -18,6 +18,14 @@ protocol ToolBarDelegate {
     func selectClear()
 }
 
+enum ToolBarItems {
+    case toggleCalendarButton
+    case fontSize
+    case pen
+    case eraser
+    case delete
+}
+
 class ToolBar: UIView {
 
     var delegate: ToolBarDelegate!
@@ -33,6 +41,14 @@ class ToolBar: UIView {
     var fontSizeTool: UIButton!
 
     var clearTool: UIButton!
+
+    var currentlySelectedTool: ToolBarItems! {
+        didSet {
+            if currentlySelectedTool == .pen {
+                penSelected(nil)
+            }
+        }
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -112,6 +128,7 @@ class ToolBar: UIView {
     }
 
     public func deselectAll() {
+        currentlySelectedTool = nil
         penTool.setImage(UIImage(named: "pen"), for: UIControl.State.normal)
         eraserTool.setImage(UIImage(named: "erase"), for: UIControl.State.normal)
         fontSizeTool.setImage(UIImage(named: "font"), for: UIControl.State.normal)
@@ -119,31 +136,38 @@ class ToolBar: UIView {
 
     // button handlers
     @objc private func toggleCalendar(_ sender: UIButton) {
-            self.delegate.toggleCalendar()
-            sender.setImage(sender.image(for: .normal)?.image(withRotation: .pi), for: .normal)
+        self.delegate.toggleCalendar()
+        currentlySelectedTool = .toggleCalendarButton
+        sender.setImage(sender.image(for: .normal)?.image(withRotation: .pi), for: .normal)
     }
 
-    @objc private func penSelected(_ sender: UIButton) {
+    @objc private func penSelected(_ sender: UIButton?) {
         self.delegate.selectPen()
         deselectAll()
+        if sender != nil {
+            currentlySelectedTool = .pen
+        }
         penTool.setImage(UIImage(named: "pen-selected"), for: UIControl.State.normal)
         // update selected image here
     }
 
     @objc private func fontSelected(_ sender: UIButton) {
         self.delegate.selectFont()
+        currentlySelectedTool = .fontSize
         fontSizeTool.setImage(UIImage(named: "font-selected"), for: UIControl.State.normal)
     }
 
     @objc private func eraserSelected(_ sender: UIButton) {
         self.delegate.selectEraser()
         deselectAll()
+        currentlySelectedTool = .eraser
         eraserTool.setImage(UIImage(named: "erase-selected"), for: UIControl.State.normal)
         // update selected image here
     }
 
     @objc private func clearSelected(_ sender: UIButton) {
         self.delegate.selectClear()
+        currentlySelectedTool = .delete
         // update selected image here
     }
 

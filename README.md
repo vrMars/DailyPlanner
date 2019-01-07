@@ -4,7 +4,8 @@
 
 ## Features so far:
 * Monthly calendar view 
-* Ability to draw and save daily notes (unlimited strokes!!!)
+* Ability to draw and save daily notes
+* Lag-free canvas
 * Indicator in the calendar view that lets you know that you have items journaled for that day
 * ToolBar to choose between Pen/Eraser/etc
 * Temporary background 

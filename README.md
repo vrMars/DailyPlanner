@@ -1,4 +1,4 @@
-# DailyPlanner
+# Dot
 
 ![helloworld](https://i.imgur.com/XkyduiC.jpg)
 
